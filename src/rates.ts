@@ -38,14 +38,28 @@ export async function getCryptoRates() {
         params: {
           vs_currency: 'usd',
           order: 'market_cap_desc',
-          per_page: 100,
+          per_page: 250,
           page: 1,
           sparkline: false
         }
       }
     );
+// İkinci sayfa (251-300)
+const response2 = await axios.get(
+  'https://api.coingecko.com/api/v3/coins/markets',
+  {
+    params: {
+      vs_currency: 'usd',
+      order: 'market_cap_desc',
+      per_page: 50,
+      page: 2,
+      sparkline: false
+    }
+  }
+);
 
-    const coins = response.data.map((coin: any) => ({
+const allData = [...response.data, ...response2.data];
+    const coins = allData.map((coin: any) => ({
       id: coin.id,
       symbol: coin.symbol.toUpperCase(),
       name: coin.name,
