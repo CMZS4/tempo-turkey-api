@@ -3,7 +3,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { getTCMBRates, getCryptoRates, getAllRates } from './rates';
+import { getTCMBRates, getCryptoRates, getAllRates, getCommodityRates } from './rates';
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
@@ -56,7 +56,15 @@ app.get('/rates/all', async (req, res) => {
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../src/dashboard.html'));
 });
-// Sunucuyu başlat
+// Emtia fiyatları
+app.get('/rates/commodities', async (req, res) => {
+  try {
+    const data = await getCommodityRates();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Emtia verisi alınamadı' });
+  }
+});// Sunucuyu başlat
 app.listen(PORT, () => {
   console.log(`✅ Tempo Turkey API çalışıyor: http://localhost:${PORT}`);
   console.log(`📈 Forex: http://localhost:${PORT}/rates/forex`);

@@ -93,3 +93,27 @@ export async function getAllRates() {
     crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alınamadı' },
   };
 }
+// Altın, Gümüş, Petrol fiyatları
+export async function getCommodityRates() {
+  try {
+    const apiKey = process.env.METALS_API_KEY;
+    const response = await axios.get(
+      `https://api.metals.dev/v1/latest?api_key=${apiKey}&currency=USD&unit=toz`
+    );
+
+    const metals = response.data.metals;
+
+    return {
+      source: 'Metals.dev',
+      timestamp: new Date().toISOString(),
+      commodities: {
+        gold_usd: metals.gold,
+        silver_usd: metals.silver,
+        platinum_usd: metals.platinum,
+        copper_usd: metals.copper,
+      }
+    };
+  } catch (error) {
+    throw new Error('Emtia verisi alınamadı');
+  }
+}
