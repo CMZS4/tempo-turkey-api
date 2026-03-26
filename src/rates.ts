@@ -44,21 +44,22 @@ export async function getCryptoRates() {
         }
       }
     );
-// İkinci sayfa (251-300)
-const response2 = await axios.get(
-  'https://api.coingecko.com/api/v3/coins/markets',
-  {
-    params: {
-      vs_currency: 'usd',
-      order: 'market_cap_desc',
-      per_page: 50,
-      page: 2,
-      sparkline: false
-    }
-  }
-);
 
-const allData = [...response.data, ...response2.data];
+    const response2 = await axios.get(
+      'https://api.coingecko.com/api/v3/coins/markets',
+      {
+        params: {
+          vs_currency: 'usd',
+          order: 'market_cap_desc',
+          per_page: 50,
+          page: 2,
+          sparkline: false
+        }
+      }
+    );
+
+    const allData = [...response.data, ...response2.data];
+
     const coins = allData.map((coin: any) => ({
       id: coin.id,
       symbol: coin.symbol.toUpperCase(),
@@ -80,20 +81,7 @@ const allData = [...response.data, ...response2.data];
   }
 }
 
-// Tüm veriler bir arada
-export async function getAllRates() {
-  const [forex, crypto] = await Promise.allSettled([
-    getTCMBRates(),
-    getCryptoRates(),
-  ]);
-
-  return {
-    timestamp: new Date().toISOString(),
-    forex: forex.status === 'fulfilled' ? forex.value : { error: 'Döviz verisi alınamadı' },
-    crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alınamadı' },
-  };
-}
-// Altın, Gümüş, Petrol fiyatları
+// Altın, Gümüş, Platin, Bakır fiyatları
 export async function getCommodityRates() {
   try {
     const apiKey = process.env.METALS_API_KEY;
@@ -102,18 +90,54 @@ export async function getCommodityRates() {
     );
 
     const metals = response.data.metals;
+    const usdTry = await getTCMBRates();
+    const usdRate = usdTry.rates.USD_TRY || 0;
+
+    const goldOzUsd = metals.gold;
+    const goldGramTry = (goldOzUsd / 31.1035) * usdRate;
 
     return {
-      source: 'Metals.dev',
+      source: 'Metals.dev + TCMB',
       timestamp: new Date().toISOString(),
-      commodities: {
-        gold_usd: metals.gold,
-        silver_usd: metals.silver,
-        platinum_usd: metals.platinum,
-        copper_usd: metals.copper,
-      }
+      gold: {
+        gram: {
+          alis: parseFloat((goldGramTry * 0.98).toFixed(2)),
+          satis: parseFloat((goldGramTry * 1.02).toFixed(2)),
+        },
+        ceyrek: {
+          alis: parseFloat((goldGramTry * 1.6066 * 0.98).toFixed(2)),
+          satis: parseFloat((goldGramTry * 1.6066 * 1.02).toFixed(2)),
+        },
+        yarim: {
+          alis: parseFloat((goldGramTry * 3.2133 * 0.98).toFixed(2)),
+          satis: parseFloat((goldGramTry * 3.2133 * 1.02).toFixed(2)),
+        },
+        tam: {
+          alis: parseFloat((goldGramTry * 6.4266 * 0.98).toFixed(2)),
+          satis: parseFloat((goldGramTry * 6.4266 * 1.02).toFixed(2)),
+        },
+      },
+      silver_usd: metals.silver,
+      platinum_usd: metals.platinum,
+      copper_usd: metals.copper,
     };
   } catch (error) {
     throw new Error('Emtia verisi alınamadı');
   }
+}
+
+// Tüm veriler bir arada
+export async function getAllRates() {
+  const [forex, crypto, commodities] = await Promise.allSettled([
+    getTCMBRates(),
+    getCryptoRates(),
+    getCommodityRates(),
+  ]);
+
+  return {
+    timestamp: new Date().toISOString(),
+    forex: forex.status === 'fulfilled' ? forex.value : { error: 'Döviz verisi alınamadı' },
+    crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alınamadı' },
+    commodities: commodities.status === 'fulfilled' ? commodities.value : { error: 'Emtia verisi alınamadı' },
+  };
 }
