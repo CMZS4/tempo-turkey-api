@@ -1,19 +1,13 @@
 import axios from 'axios';
 
-// TCMB Doviz Kurlari
 export async function getTCMBRates() {
   try {
-    const response = await axios.get(
-      'https://www.tcmb.gov.tr/kurlar/today.xml'
-    );
-    
+    const response = await axios.get('https://www.tcmb.gov.tr/kurlar/today.xml');
     const xml = response.data as string;
-    
     const usdMatch = xml.match(/CurrencyCode="USD"[\s\S]*?<BanknoteSelling>(.*?)<\/BanknoteSelling>/);
     const eurMatch = xml.match(/CurrencyCode="EUR"[\s\S]*?<BanknoteSelling>(.*?)<\/BanknoteSelling>/);
     const gbpMatch = xml.match(/CurrencyCode="GBP"[\s\S]*?<BanknoteSelling>(.*?)<\/BanknoteSelling>/);
     const jpyMatch = xml.match(/CurrencyCode="JPY"[\s\S]*?<BanknoteSelling>(.*?)<\/BanknoteSelling>/);
-
     return {
       source: 'TCMB',
       timestamp: new Date().toISOString(),
@@ -29,37 +23,15 @@ export async function getTCMBRates() {
   }
 }
 
-// CoinGecko Top 300 Kripto
 export async function getCryptoRates() {
   try {
-    const response = await axios.get(
-      'https://api.coingecko.com/api/v3/coins/markets',
-      {
-        params: {
-          vs_currency: 'usd',
-          order: 'market_cap_desc',
-          per_page: 250,
-          page: 1,
-          sparkline: false
-        }
-      }
-    );
-
-    const response2 = await axios.get(
-      'https://api.coingecko.com/api/v3/coins/markets',
-      {
-        params: {
-          vs_currency: 'usd',
-          order: 'market_cap_desc',
-          per_page: 50,
-          page: 2,
-          sparkline: false
-        }
-      }
-    );
-
+    const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
+      params: { vs_currency: 'usd', order: 'market_cap_desc', per_page: 250, page: 1, sparkline: false }
+    });
+    const response2 = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
+      params: { vs_currency: 'usd', order: 'market_cap_desc', per_page: 50, page: 2, sparkline: false }
+    });
     const allData = [...response.data, ...response2.data];
-
     const coins = allData.map((coin: any) => ({
       id: coin.id,
       symbol: coin.symbol.toUpperCase(),
@@ -69,7 +41,6 @@ export async function getCryptoRates() {
       change_24h: coin.price_change_percentage_24h,
       volume_24h: coin.total_volume,
     }));
-
     return {
       source: 'CoinGecko',
       timestamp: new Date().toISOString(),
@@ -81,21 +52,15 @@ export async function getCryptoRates() {
   }
 }
 
-// Altin, Gumus, Platin, Bakir fiyatlari
 export async function getCommodityRates() {
   try {
     const apiKey = process.env.METALS_API_KEY;
-    const response = await axios.get(
-      `https://api.metals.dev/v1/latest?api_key=${apiKey}&currency=USD&unit=toz`
-    );
-
+    const response = await axios.get(`https://api.metals.dev/v1/latest?api_key=${apiKey}&currency=USD&unit=toz`);
     const metals = response.data.metals;
     const usdTry = await getTCMBRates();
     const usdRate = usdTry.rates.USD_TRY || 0;
-
     const goldOzUsd = metals.gold;
     const goldGramTry = (goldOzUsd / 31.1035) * usdRate;
-
     return {
       source: 'Metals.dev + TCMB',
       timestamp: new Date().toISOString(),
@@ -126,26 +91,19 @@ export async function getCommodityRates() {
   }
 }
 
-// Petrol & Dogalgaz Fiyatlari
 export async function getOilPrices() {
   try {
-    const headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    };
-
+    const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' };
     const tcmbData = await getTCMBRates();
     const usdRate = tcmbData.rates.USD_TRY || 0;
-
     const [brentRes, wtiRes, natgasRes] = await Promise.all([
       axios.get('https://query1.finance.yahoo.com/v8/finance/chart/BZ=F?interval=1d&range=1d', { headers }),
       axios.get('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=1d', { headers }),
       axios.get('https://query1.finance.yahoo.com/v8/finance/chart/NG=F?interval=1d&range=1d', { headers }),
     ]);
-
     const brentUsd = brentRes.data.chart.result[0].meta.regularMarketPrice;
     const wtiUsd = wtiRes.data.chart.result[0].meta.regularMarketPrice;
     const natgasUsd = natgasRes.data.chart.result[0].meta.regularMarketPrice;
-
     return {
       source: 'Yahoo Finance + TCMB',
       timestamp: new Date().toISOString(),
@@ -168,54 +126,43 @@ export async function getOilPrices() {
   }
 }
 
-// BIST Hisse Senetleri
 export async function getBISTRates() {
   try {
-    const headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    };
-
+    const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' };
     const symbols = [
-      'XU100.IS','GARAN.IS','AKBNK.IS','YKBNK.IS','HALKB.IS','VAKBN.IS',
-      'ISCTR.IS','TSKB.IS','ALBRK.IS','QNBFB.IS','SKBNK.IS','THYAO.IS',
-      'PGSUS.IS','TAVHL.IS','CLEBI.IS','ASELS.IS','KAREL.IS','NETAS.IS',
-      'LOGO.IS','INDES.IS','ARENA.IS','LINK.IS','EREGL.IS','KRDMD.IS',
-      'IZMDC.IS','KOZAA.IS','KOZA.IS','CELHA.IS','TUPRS.IS','AYGAZ.IS',
-      'AKSEN.IS','ZOREN.IS','ENKAI.IS','ENJSA.IS','AKFEN.IS','ODAS.IS',
-      'SISE.IS','TRKCM.IS','ANACM.IS','TOASO.IS','FROTO.IS','ARCLK.IS',
-      'OTKAR.IS','ASUZU.IS','TTRAK.IS','DOAS.IS','BIMAS.IS','MGROS.IS',
-      'SOKM.IS','ULKER.IS','BANVT.IS','TATGD.IS','AEFES.IS','CCOLA.IS',
-      'MAVI.IS','EKGYO.IS','ISGYO.IS','TRGYO.IS','ALGYO.IS','ECILC.IS',
-      'ECZYT.IS','DEVA.IS','ANSGR.IS','AKGRT.IS','TCELL.IS','TTKOM.IS',
-      'SASA.IS','CIMSA.IS','AKCNS.IS','BOLUC.IS','ADANA.IS','UNYEC.IS',
-      'KONYA.IS','KCHOL.IS','SAHOL.IS','DOHOL.IS','TKFEN.IS','IPEKE.IS',
-      'GUBRF.IS','BAGFS.IS','PNAR.IS','PETUN.IS','BRYAT.IS','KORDS.IS',
-      'BOSSA.IS','YATAS.IS','GOODY.IS','MUTLU.IS','ADEL.IS','TIRE.IS',
-      'MRDIN.IS','AFYON.IS','GOLTS.IS','ORGE.IS','TUREX.IS','SILVR.IS',
-      'RYGYO.IS','VKGYO.IS','SNGYO.IS','MNGYO.IS','NUGYO.IS','RAYSG.IS',
+      'XU100.IS','THYAO.IS','GARAN.IS','ASELS.IS','KCHOL.IS',
+      'EREGL.IS','BIMAS.IS','AKBNK.IS','YKBNK.IS','TUPRS.IS',
+      'SISE.IS','SAHOL.IS','PGSUS.IS','TOASO.IS','FROTO.IS',
+      'ARCLK.IS','TCELL.IS','ENKAI.IS','EKGYO.IS','HALKB.IS',
+      'VAKBN.IS',
     ];
-
-    const symbolList = symbols.join('%2C');
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbolList}`;
-
-    const response = await axios.get(url, { headers });
-    const quotes = response.data.quoteResponse.result;
-
-    const stocks = quotes.map((q: any) => {
-      const prev = q.regularMarketPreviousClose || q.regularMarketPrice;
-      return {
-        symbol: q.symbol.replace('.IS', ''),
-        name: getStockName(q.symbol),
-        price: parseFloat((q.regularMarketPrice || 0).toFixed(2)),
-        previous_close: parseFloat((prev || 0).toFixed(2)),
-        change_percent: parseFloat((q.regularMarketChangePercent || 0).toFixed(2)),
-        currency: 'TRY',
-      };
-    });
-
+    const requests = symbols.map(symbol =>
+      axios.get(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`,
+        { headers }
+      ).catch(() => null)
+    );
+    const responses = await Promise.all(requests);
+    const stocks = responses
+      .map((res: any, i) => {
+        if (!res) return null;
+        const meta = res.data.chart.result?.[0]?.meta;
+        if (!meta) return null;
+        const prev = meta.chartPreviousClose || meta.regularMarketPrice;
+        return {
+          symbol: symbols[i].replace('.IS', ''),
+          name: getStockName(symbols[i]),
+          price: parseFloat(meta.regularMarketPrice.toFixed(2)),
+          previous_close: parseFloat(prev.toFixed(2)),
+          change_percent: parseFloat(
+            (((meta.regularMarketPrice - prev) / prev) * 100).toFixed(2)
+          ),
+          currency: 'TRY',
+        };
+      })
+      .filter(Boolean);
     const bist100 = stocks.find((s: any) => s.symbol === 'XU100');
     const hisseler = stocks.filter((s: any) => s.symbol !== 'XU100');
-
     return {
       source: 'Yahoo Finance',
       timestamp: new Date().toISOString(),
@@ -231,112 +178,30 @@ export async function getBISTRates() {
 function getStockName(symbol: string): string {
   const names: Record<string, string> = {
     'XU100.IS': 'BIST 100',
+    'THYAO.IS': 'Turk Hava Yollari',
     'GARAN.IS': 'Garanti BBVA',
+    'ASELS.IS': 'Aselsan',
+    'KCHOL.IS': 'Koc Holding',
+    'EREGL.IS': 'Eregli Demir Celik',
+    'BIMAS.IS': 'BIM Magazalar',
     'AKBNK.IS': 'Akbank',
     'YKBNK.IS': 'Yapi Kredi',
-    'HALKB.IS': 'Halkbank',
-    'VAKBN.IS': 'Vakifbank',
-    'ISCTR.IS': 'Is Bankasi',
-    'TSKB.IS': 'TSKB',
-    'ALBRK.IS': 'Albaraka Turk',
-    'QNBFB.IS': 'QNB Finansbank',
-    'SKBNK.IS': 'Sekerbank',
-    'THYAO.IS': 'Turk Hava Yollari',
-    'PGSUS.IS': 'Pegasus',
-    'TAVHL.IS': 'TAV Havalimanlari',
-    'CLEBI.IS': 'Celebi',
-    'ASELS.IS': 'Aselsan',
-    'KAREL.IS': 'Karel',
-    'NETAS.IS': 'Netas',
-    'LOGO.IS': 'Logo Yazilim',
-    'INDES.IS': 'Indes',
-    'ARENA.IS': 'Arena Bilgisayar',
-    'LINK.IS': 'Link Bilgisayar',
-    'EREGL.IS': 'Eregli Demir Celik',
-    'KRDMD.IS': 'Kardemir',
-    'IZMDC.IS': 'Izmir Demir Celik',
-    'KOZAA.IS': 'Koza Anadolu',
-    'KOZA.IS': 'Koza Altin',
-    'CELHA.IS': 'Celik Halat',
     'TUPRS.IS': 'Tupras',
-    'AYGAZ.IS': 'Aygaz',
-    'AKSEN.IS': 'Aksa Enerji',
-    'ZOREN.IS': 'Zorlu Enerji',
-    'ENKAI.IS': 'Enka Insaat',
-    'ENJSA.IS': 'Enerjisa',
-    'AKFEN.IS': 'Akfen Holding',
-    'ODAS.IS': 'Odas Elektrik',
     'SISE.IS': 'Sise Cam',
-    'TRKCM.IS': 'Trakya Cam',
-    'ANACM.IS': 'Anadolu Cam',
+    'SAHOL.IS': 'Sabanci Holding',
+    'PGSUS.IS': 'Pegasus',
     'TOASO.IS': 'Tofas',
     'FROTO.IS': 'Ford Otosan',
     'ARCLK.IS': 'Arcelik',
-    'OTKAR.IS': 'Otokar',
-    'ASUZU.IS': 'Anadolu Isuzu',
-    'TTRAK.IS': 'Turk Traktor',
-    'DOAS.IS': 'Dogus Otomotiv',
-    'BIMAS.IS': 'BIM Magazalar',
-    'MGROS.IS': 'Migros',
-    'SOKM.IS': 'Sok Marketler',
-    'ULKER.IS': 'Ulker',
-    'BANVT.IS': 'Banvit',
-    'TATGD.IS': 'Tat Gida',
-    'AEFES.IS': 'Anadolu Efes',
-    'CCOLA.IS': 'Coca-Cola Icecek',
-    'MAVI.IS': 'Mavi Giyim',
-    'EKGYO.IS': 'Emlak Konut',
-    'ISGYO.IS': 'Is GYO',
-    'TRGYO.IS': 'Torunlar GYO',
-    'ALGYO.IS': 'Alarko GYO',
-    'ECILC.IS': 'Eczacibasi Ilac',
-    'ECZYT.IS': 'Eczacibasi Yatirim',
-    'DEVA.IS': 'Deva Holding',
-    'ANSGR.IS': 'Anadolu Sigorta',
-    'AKGRT.IS': 'Aksigorta',
     'TCELL.IS': 'Turkcell',
-    'TTKOM.IS': 'Turk Telekom',
-    'SASA.IS': 'Sasa Polyester',
-    'CIMSA.IS': 'Cimsa',
-    'AKCNS.IS': 'Akcansa',
-    'BOLUC.IS': 'Bolu Cimento',
-    'ADANA.IS': 'Adana Cimento',
-    'UNYEC.IS': 'Unye Cimento',
-    'KONYA.IS': 'Konya Cimento',
-    'KCHOL.IS': 'Koc Holding',
-    'SAHOL.IS': 'Sabanci Holding',
-    'DOHOL.IS': 'Dogan Holding',
-    'TKFEN.IS': 'Tekfen Holding',
-    'IPEKE.IS': 'Ipek Dogal Enerji',
-    'GUBRF.IS': 'Gubre Fabrikalari',
-    'BAGFS.IS': 'Bagfas',
-    'PNAR.IS': 'Pinar Sut',
-    'PETUN.IS': 'Pinar Et',
-    'BRYAT.IS': 'Borusan Yatirim',
-    'KORDS.IS': 'Kordsa',
-    'BOSSA.IS': 'Bossa',
-    'YATAS.IS': 'Yatas',
-    'GOODY.IS': 'Goodyear',
-    'MUTLU.IS': 'Mutlu Aku',
-    'ADEL.IS': 'Adel Kalemcilik',
-    'TIRE.IS': 'Tire Kutsan',
-    'MRDIN.IS': 'Mardin Cimento',
-    'AFYON.IS': 'Afyon Cimento',
-    'GOLTS.IS': 'Goltas Cimento',
-    'ORGE.IS': 'Orge Enerji',
-    'TUREX.IS': 'Tureks',
-    'SILVR.IS': 'Silverline',
-    'RYGYO.IS': 'Reysas GYO',
-    'VKGYO.IS': 'Vakif GYO',
-    'SNGYO.IS': 'Sinpas GYO',
-    'MNGYO.IS': 'Marti GYO',
-    'NUGYO.IS': 'Nurol GYO',
-    'RAYSG.IS': 'Ray Sigorta',
+    'ENKAI.IS': 'Enka Insaat',
+    'EKGYO.IS': 'Emlak Konut',
+    'HALKB.IS': 'Halkbank',
+    'VAKBN.IS': 'Vakifbank',
   };
   return names[symbol] || symbol.replace('.IS', '');
 }
 
-// Tum veriler bir arada
 export async function getAllRates() {
   const [forex, crypto, commodities, oil, bist] = await Promise.allSettled([
     getTCMBRates(),
@@ -345,7 +210,6 @@ export async function getAllRates() {
     getOilPrices(),
     getBISTRates(),
   ]);
-
   return {
     timestamp: new Date().toISOString(),
     forex: forex.status === 'fulfilled' ? forex.value : { error: 'Doviz verisi alinamadi' },
