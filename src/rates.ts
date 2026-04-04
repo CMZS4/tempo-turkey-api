@@ -126,22 +126,25 @@ export async function getCommodityRates() {
   }
 }
 
-// Petrol Fiyatları (Yahoo Finance - API key gerekmez)
+// Petrol & Doğalgaz Fiyatları
 export async function getOilPrices() {
   try {
     const headers = {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     };
 
-    const [brentRes, wtiRes, tcmbData] = await Promise.all([
+    const tcmbData = await getTCMBRates();
+    const usdRate = tcmbData.rates.USD_TRY || 0;
+
+    const [brentRes, wtiRes, natgasRes] = await Promise.all([
       axios.get('https://query1.finance.yahoo.com/v8/finance/chart/BZ=F?interval=1d&range=1d', { headers }),
       axios.get('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=1d', { headers }),
-      getTCMBRates(),
+      axios.get('https://query1.finance.yahoo.com/v8/finance/chart/NG=F?interval=1d&range=1d', { headers }),
     ]);
 
-    const usdRate = tcmbData.rates.USD_TRY || 0;
     const brentUsd = brentRes.data.chart.result[0].meta.regularMarketPrice;
     const wtiUsd = wtiRes.data.chart.result[0].meta.regularMarketPrice;
+    const natgasUsd = natgasRes.data.chart.result[0].meta.regularMarketPrice;
 
     return {
       source: 'Yahoo Finance + TCMB',
@@ -154,9 +157,14 @@ export async function getOilPrices() {
         usd: parseFloat(wtiUsd.toFixed(2)),
         try: parseFloat((wtiUsd * usdRate).toFixed(2)),
       },
+      natural_gas: {
+        usd: parseFloat(natgasUsd.toFixed(2)),
+        try: parseFloat((natgasUsd * usdRate).toFixed(2)),
+        unit: 'MMBtu',
+      },
     };
   } catch (error) {
-    throw new Error('Petrol verisi alınamadı');
+    throw new Error('Enerji verisi alınamadı');
   }
 }
 
@@ -174,6 +182,6 @@ export async function getAllRates() {
     forex: forex.status === 'fulfilled' ? forex.value : { error: 'Döviz verisi alınamadı' },
     crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alınamadı' },
     commodities: commodities.status === 'fulfilled' ? commodities.value : { error: 'Emtia verisi alınamadı' },
-    oil: oil.status === 'fulfilled' ? oil.value : { error: 'Petrol verisi alınamadı' },
+    oil: oil.status === 'fulfilled' ? oil.value : { error: 'Enerji verisi alınamadı' },
   };
 }
