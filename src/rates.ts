@@ -168,13 +168,109 @@ export async function getOilPrices() {
   }
 }
 
+// BIST100 ve Türk Hisse Senetleri
+export async function getBISTRates() {
+  try {
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    };
+
+    // BIST100 endeksi + en çok işlem gören 20 Türk hissesi
+    const symbols = [
+      'XU100.IS',  // BIST 100 endeksi
+      'THYAO.IS',  // Türk Hava Yolları
+      'GARAN.IS',  // Garanti Bankası
+      'ASELS.IS',  // Aselsan
+      'KCHOL.IS',  // Koç Holding
+      'EREGL.IS',  // Ereğli Demir Çelik
+      'BIMAS.IS',  // BİM
+      'AKBNK.IS',  // Akbank
+      'YKBNK.IS',  // Yapı Kredi
+      'TUPRS.IS',  // Tüpraş
+      'SISE.IS',   // Şişe Cam
+      'SAHOL.IS',  // Sabancı Holding
+      'PGSUS.IS',  // Pegasus
+      'TOASO.IS',  // Tofaş
+      'FROTO.IS',  // Ford Otosan
+      'ARCLK.IS',  // Arçelik
+      'TCELL.IS',  // Turkcell
+      'ENKAI.IS',  // Enka İnşaat
+      'EKGYO.IS',  // Emlak Konut
+      'HALKB.IS',  // Halkbank
+      'VAKBN.IS',  // Vakıfbank
+    ];
+
+    const symbolList = symbols.join(',');
+    const response = await axios.get(
+      `https://query1.finance.yahoo.com/v8/finance/spark?symbols=${symbolList}&range=1d&interval=1d`,
+      { headers }
+    );
+
+    const results = response.data.spark.result;
+
+    const stocks = results.map((item: any) => {
+      const meta = item.response[0].meta;
+      return {
+        symbol: meta.symbol.replace('.IS', ''),
+        name: getStockName(meta.symbol),
+        price: parseFloat(meta.regularMarketPrice.toFixed(2)),
+        previous_close: parseFloat(meta.chartPreviousClose.toFixed(2)),
+        change_percent: parseFloat(
+          (((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100).toFixed(2)
+        ),
+        currency: 'TRY',
+      };
+    });
+
+    const bist100 = stocks.find((s: any) => s.symbol === 'XU100');
+    const hisseler = stocks.filter((s: any) => s.symbol !== 'XU100');
+
+    return {
+      source: 'Yahoo Finance',
+      timestamp: new Date().toISOString(),
+      bist100: bist100 || null,
+      stocks: hisseler,
+    };
+  } catch (error) {
+    throw new Error('BIST verisi alınamadı');
+  }
+}
+
+function getStockName(symbol: string): string {
+  const names: Record<string, string> = {
+    'XU100.IS': 'BIST 100',
+    'THYAO.IS': 'Türk Hava Yolları',
+    'GARAN.IS': 'Garanti BBVA',
+    'ASELS.IS': 'Aselsan',
+    'KCHOL.IS': 'Koç Holding',
+    'EREGL.IS': 'Ereğli Demir Çelik',
+    'BIMAS.IS': 'BİM Mağazalar',
+    'AKBNK.IS': 'Akbank',
+    'YKBNK.IS': 'Yapı Kredi',
+    'TUPRS.IS': 'Tüpraş',
+    'SISE.IS': 'Şişe Cam',
+    'SAHOL.IS': 'Sabancı Holding',
+    'PGSUS.IS': 'Pegasus',
+    'TOASO.IS': 'Tofaş',
+    'FROTO.IS': 'Ford Otosan',
+    'ARCLK.IS': 'Arçelik',
+    'TCELL.IS': 'Turkcell',
+    'ENKAI.IS': 'Enka İnşaat',
+    'EKGYO.IS': 'Emlak Konut',
+    'HALKB.IS': 'Halkbank',
+    'VAKBN.IS': 'Vakıfbank',
+  };
+  return names[symbol] || symbol;
+}
+
 // Tüm veriler bir arada
 export async function getAllRates() {
-  const [forex, crypto, commodities, oil] = await Promise.allSettled([
+  const [forex, crypto, commodities, oil, bist] = await Promise.allSettled([
     getTCMBRates(),
     getCryptoRates(),
     getCommodityRates(),
     getOilPrices(),
+    getBISTRates(),
   ]);
 
   return {
@@ -183,5 +279,6 @@ export async function getAllRates() {
     crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alınamadı' },
     commodities: commodities.status === 'fulfilled' ? commodities.value : { error: 'Emtia verisi alınamadı' },
     oil: oil.status === 'fulfilled' ? oil.value : { error: 'Enerji verisi alınamadı' },
+    bist: bist.status === 'fulfilled' ? bist.value : { error: 'BIST verisi alınamadı' },
   };
 }

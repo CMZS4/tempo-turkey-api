@@ -3,7 +3,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { getTCMBRates, getCryptoRates, getAllRates, getCommodityRates, getOilPrices } from './rates';
+import { getTCMBRates, getCryptoRates, getAllRates, getCommodityRates, getOilPrices, getBISTRates } from './rates';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -15,12 +15,13 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({
     name: 'Tempo Turkey API',
-    version: '2.1.0',
+    version: '2.2.0',
     endpoints: {
       forex: '/rates/forex',
       crypto: '/rates/crypto',
       commodities: '/rates/commodities',
       oil: '/rates/oil',
+      bist: '/rates/bist',
       all: '/rates/all',
     }
   });
@@ -56,13 +57,23 @@ app.get('/rates/commodities', async (req, res) => {
   }
 });
 
-// Petrol fiyatları
+// Petrol & Doğalgaz fiyatları
 app.get('/rates/oil', async (req, res) => {
   try {
     const data = await getOilPrices();
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: 'Petrol verisi alınamadı' });
+  }
+});
+
+// BIST100 & Türk hisseleri
+app.get('/rates/bist', async (req, res) => {
+  try {
+    const data = await getBISTRates();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'BIST verisi alınamadı' });
   }
 });
 
@@ -87,5 +98,6 @@ app.listen(PORT, () => {
   console.log(`📈 Forex: http://localhost:${PORT}/rates/forex`);
   console.log(`🪙 Kripto: http://localhost:${PORT}/rates/crypto`);
   console.log(`🛢️ Petrol: http://localhost:${PORT}/rates/oil`);
+  console.log(`📊 BIST: http://localhost:${PORT}/rates/bist`);
   console.log(`🌍 Hepsi: http://localhost:${PORT}/rates/all`);
 });
