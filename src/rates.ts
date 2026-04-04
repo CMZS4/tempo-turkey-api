@@ -168,7 +168,7 @@ export async function getOilPrices() {
   }
 }
 
-// BIST100 ve Türk Hisse Senetleri
+// BIST 250 Hisse Senetleri
 export async function getBISTRates() {
   try {
     const headers = {
@@ -176,31 +176,98 @@ export async function getBISTRates() {
     };
 
     const symbols = [
-      'XU100.IS', 'THYAO.IS', 'GARAN.IS', 'ASELS.IS', 'KCHOL.IS',
-      'EREGL.IS', 'BIMAS.IS', 'AKBNK.IS', 'YKBNK.IS', 'TUPRS.IS',
-      'SISE.IS', 'SAHOL.IS', 'PGSUS.IS', 'TOASO.IS', 'FROTO.IS',
-      'ARCLK.IS', 'TCELL.IS', 'ENKAI.IS', 'EKGYO.IS', 'HALKB.IS',
-      'VAKBN.IS',
+      'XU100.IS', // BIST 100 endeksi
+      // Bankacılık
+      'GARAN.IS', 'AKBNK.IS', 'YKBNK.IS', 'HALKB.IS', 'VAKBN.IS',
+      'ISCTR.IS', 'TSKB.IS', 'ALBRK.IS', 'KUVEYT.IS', 'ODEABANK.IS',
+      'QNBFB.IS', 'SKBNK.IS', 'FIBABANKA.IS', 'BURCE.IS', 'ICBCT.IS',
+      // Holding
+      'KCHOL.IS', 'SAHOL.IS', 'DOHOL.IS', 'GUBRF.IS', 'ISFIN.IS',
+      'SMART.IS', 'MPARK.IS', 'OYAKC.IS', 'TKFEN.IS', 'GLYHO.IS',
+      // Havacılık & Ulaşım
+      'THYAO.IS', 'PGSUS.IS', 'CLEBI.IS', 'HAVA.IS', 'TAVHL.IS',
+      'UCAK.IS', 'DURDO.IS',
+      // Savunma & Teknoloji
+      'ASELS.IS', 'ROKET.IS', 'KAREL.IS', 'NETAS.IS', 'LOGO.IS',
+      'INDES.IS', 'ARENA.IS', 'LINK.IS', 'DGATE.IS', 'ESCOM.IS',
+      'FONET.IS', 'INTEM.IS', 'PKART.IS', 'ISBIR.IS', 'BIMAS.IS',
+      // Demir Çelik & Madencilik
+      'EREGL.IS', 'KRDMD.IS', 'IZMDC.IS', 'CEMTS.IS', 'DMSAS.IS',
+      'KARDEM.IS', 'METUR.IS', 'KOZAA.IS', 'KOZA.IS', 'IPEKE.IS',
+      'ZNGDK.IS', 'CELHA.IS',
+      // Enerji & Petrokimya
+      'TUPRS.IS', 'AYGAZ.IS', 'AKSEN.IS', 'ZOREN.IS', 'ODAS.IS',
+      'ENJSA.IS', 'EUPWR.IS', 'AKFEN.IS', 'ENKAI.IS', 'GWIND.IS',
+      'FENER.IS', 'MAGEN.IS', 'NUHCM.IS', 'AKENR.IS', 'BERA.IS',
+      // Cam & Seramik
+      'SISE.IS', 'TRKCM.IS', 'ANACM.IS', 'ANEL.IS', 'EGSER.IS',
+      // Otomotiv
+      'TOASO.IS', 'FROTO.IS', 'ARCLK.IS', 'OTKAR.IS', 'ASUZU.IS',
+      'TTRAK.IS', 'DOAS.IS', 'DOGUB.IS',
+      // Perakende & Gıda
+      'BIMAS.IS', 'MGROS.IS', 'SOKM.IS', 'CARFA.IS', 'BIZIM.IS',
+      'ULKER.IS', 'BANVT.IS', 'TATGD.IS', 'KENT.IS', 'PNAR.IS',
+      'AEFES.IS', 'CCOLA.IS', 'PETUN.IS', 'TUKAS.IS', 'SELGD.IS',
+      // Tekstil & Giyim
+      'BRYAT.IS', 'MAVI.IS', 'BOSSA.IS', 'YATAS.IS', 'DESA.IS',
+      'GEDZA.IS', 'ITTFH.IS', 'KORDS.IS', 'LUKSK.IS', 'IPMAN.IS',
+      // İnşaat & GYO
+      'EKGYO.IS', 'ISGYO.IS', 'TRGYO.IS', 'ALGYO.IS', 'OZNUR.IS',
+      'PEKGY.IS', 'HLGYO.IS', 'KGYO.IS', 'RYGYO.IS', 'VKGYO.IS',
+      'SNGYO.IS', 'MNGYO.IS', 'DGGYO.IS', 'NUGYO.IS', 'OZKGY.IS',
+      // Kimya & İlaç
+      'ECILC.IS', 'SELEC.IS', 'ECZYT.IS', 'BIOEN.IS', 'DEVA.IS',
+      'BFREN.IS', 'ALFAS.IS', 'TLMAN.IS', 'AVGYO.IS', 'ALKIM.IS',
+      // Sigortacılık
+      'ANSGR.IS', 'RAYSG.IS', 'GUSGF.IS', 'AKGRT.IS', 'TURSG.IS',
+      // Telekomünikasyon & Medya
+      'TCELL.IS', 'TTKOM.IS', 'EREGL.IS', 'NTTUR.IS', 'DENGE.IS',
+      'DOBUR.IS', 'RYSAS.IS', 'MEDTR.IS',
+      // Tarım & Orman
+      'AGHOL.IS', 'TBORG.IS', 'BAGFS.IS', 'KSTUR.IS', 'TEZOL.IS',
+      // Lojistik & Denizcilik
+      'RYSAS.IS', 'GSDHO.IS', 'SDTTR.IS', 'HUBVC.IS', 'GSDDE.IS',
+      'DITAS.IS', 'MRSHL.IS', 'UFUK.IS',
+      // Diğer Sanayi
+      'SASA.IS', 'KERVT.IS', 'GOODY.IS', 'MUTLU.IS', 'GEDIK.IS',
+      'PENGD.IS', 'ADEL.IS', 'FMIZP.IS', 'BNTAS.IS', 'TIRE.IS',
+      'CIMSA.IS', 'AKCNS.IS', 'BOLUC.IS', 'ADANA.IS', 'MRDIN.IS',
+      'UNYEC.IS', 'KONYA.IS', 'AFYON.IS', 'FENIS.IS', 'GOLTS.IS',
+      'KAPLM.IS', 'SERVE.IS', 'ONCSM.IS', 'ORGE.IS', 'MEGAP.IS',
+      'TUREX.IS', 'KATMR.IS', 'OTOKAR.IS', 'SILVR.IS', 'UFUK.IS',
     ];
 
-    const requests = symbols.map(symbol =>
-      axios.get(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`,
-        { headers }
-      )
-    );
+    // Tekrar edenleri temizle
+    const uniqueSymbols = [...new Set(symbols)];
 
-    const responses = await Promise.allSettled(requests);
+    // 10'arlı gruplar halinde gönder (rate limit için)
+    const chunkSize = 10;
+    const chunks = [];
+    for (let i = 0; i < uniqueSymbols.length; i += chunkSize) {
+      chunks.push(uniqueSymbols.slice(i, i + chunkSize));
+    }
 
-    const stocks = responses
-      .map((res, i) => {
-        if (res.status !== 'fulfilled') return null;
-        const meta = res.value.data.chart.result?.[0]?.meta;
+    const allResponses: any[] = [];
+    for (const chunk of chunks) {
+      const requests = chunk.map(symbol =>
+        axios.get(
+          `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`,
+          { headers }
+        ).catch(() => null)
+      );
+      const results = await Promise.all(requests);
+      allResponses.push(...results.map((res, i) => ({ res, symbol: chunk[i] })));
+    }
+
+    const stocks = allResponses
+      .map(({ res, symbol }) => {
+        if (!res) return null;
+        const meta = res.data.chart.result?.[0]?.meta;
         if (!meta) return null;
         const prev = meta.chartPreviousClose || meta.regularMarketPrice;
         return {
-          symbol: symbols[i].replace('.IS', ''),
-          name: getStockName(symbols[i]),
+          symbol: symbol.replace('.IS', ''),
+          name: getStockName(symbol),
           price: parseFloat(meta.regularMarketPrice.toFixed(2)),
           previous_close: parseFloat(prev.toFixed(2)),
           change_percent: parseFloat(
@@ -218,6 +285,7 @@ export async function getBISTRates() {
       source: 'Yahoo Finance',
       timestamp: new Date().toISOString(),
       bist100: bist100 || null,
+      count: hisseler.length,
       stocks: hisseler,
     };
   } catch (error) {
@@ -228,28 +296,42 @@ export async function getBISTRates() {
 function getStockName(symbol: string): string {
   const names: Record<string, string> = {
     'XU100.IS': 'BIST 100',
-    'THYAO.IS': 'Türk Hava Yolları',
-    'GARAN.IS': 'Garanti BBVA',
-    'ASELS.IS': 'Aselsan',
-    'KCHOL.IS': 'Koç Holding',
-    'EREGL.IS': 'Ereğli Demir Çelik',
-    'BIMAS.IS': 'BİM Mağazalar',
-    'AKBNK.IS': 'Akbank',
-    'YKBNK.IS': 'Yapı Kredi',
-    'TUPRS.IS': 'Tüpraş',
-    'SISE.IS': 'Şişe Cam',
-    'SAHOL.IS': 'Sabancı Holding',
-    'PGSUS.IS': 'Pegasus',
-    'TOASO.IS': 'Tofaş',
-    'FROTO.IS': 'Ford Otosan',
-    'ARCLK.IS': 'Arçelik',
-    'TCELL.IS': 'Turkcell',
-    'ENKAI.IS': 'Enka İnşaat',
-    'EKGYO.IS': 'Emlak Konut',
-    'HALKB.IS': 'Halkbank',
-    'VAKBN.IS': 'Vakıfbank',
+    'GARAN.IS': 'Garanti BBVA', 'AKBNK.IS': 'Akbank', 'YKBNK.IS': 'Yapı Kredi',
+    'HALKB.IS': 'Halkbank', 'VAKBN.IS': 'Vakıfbank', 'ISCTR.IS': 'İş Bankası',
+    'TSKB.IS': 'TSKB', 'ALBRK.IS': 'Albaraka Türk', 'QNBFB.IS': 'QNB Finansbank',
+    'SKBNK.IS': 'Şekerbank', 'FIBABANKA.IS': 'Fibabanka', 'ICBCT.IS': 'ICBC Turkey',
+    'KCHOL.IS': 'Koç Holding', 'SAHOL.IS': 'Sabancı Holding', 'DOHOL.IS': 'Doğan Holding',
+    'TKFEN.IS': 'Tekfen Holding', 'GLYHO.IS': 'Global Yatırım Holding',
+    'THYAO.IS': 'Türk Hava Yolları', 'PGSUS.IS': 'Pegasus', 'CLEBI.IS': 'Çelebi',
+    'TAVHL.IS': 'TAV Havalimanları', 'HAVA.IS': 'Türk Hava Servisi',
+    'ASELS.IS': 'Aselsan', 'ROKET.IS': 'Roketsan', 'KAREL.IS': 'Karel',
+    'NETAS.IS': 'Netaş', 'LOGO.IS': 'Logo Yazılım', 'INDES.IS': 'İndes',
+    'ARENA.IS': 'Arena Bilgisayar', 'LINK.IS': 'Link Bilgisayar',
+    'EREGL.IS': 'Ereğli Demir Çelik', 'KRDMD.IS': 'Kardemir',
+    'IZMDC.IS': 'İzmir Demir Çelik', 'KOZAA.IS': 'Koza Anadolu',
+    'KOZA.IS': 'Koza Altın', 'CELHA.IS': 'Çelik Halat',
+    'TUPRS.IS': 'Tüpraş', 'AYGAZ.IS': 'Aygaz', 'AKSEN.IS': 'Aksa Enerji',
+    'ZOREN.IS': 'Zorlu Enerji', 'ENKAI.IS': 'Enka İnşaat', 'ENJSA.IS': 'Enerjisa',
+    'AKFEN.IS': 'Akfen Holding', 'ODAS.IS': 'Odaş Elektrik',
+    'SISE.IS': 'Şişe Cam', 'TRKCM.IS': 'Trakya Cam', 'ANACM.IS': 'Anadolu Cam',
+    'TOASO.IS': 'Tofaş', 'FROTO.IS': 'Ford Otosan', 'ARCLK.IS': 'Arçelik',
+    'OTKAR.IS': 'Otokar', 'ASUZU.IS': 'Anadolu Isuzu', 'TTRAK.IS': 'Türk Traktör',
+    'DOAS.IS': 'Doğuş Otomotiv',
+    'BIMAS.IS': 'BİM Mağazalar', 'MGROS.IS': 'Migros', 'SOKM.IS': 'Şok Marketler',
+    'ULKER.IS': 'Ülker', 'BANVT.IS': 'Banvit', 'TATGD.IS': 'Tat Gıda',
+    'AEFES.IS': 'Anadolu Efes', 'CCOLA.IS': 'Coca-Cola İçecek',
+    'MAVI.IS': 'Mavi Giyim', 'BRYAT.IS': 'Borusan Yatırım',
+    'EKGYO.IS': 'Emlak Konut', 'ISGYO.IS': 'İş GYO', 'TRGYO.IS': 'Torunlar GYO',
+    'ALGYO.IS': 'Alarko GYO',
+    'ECILC.IS': 'Eczacıbaşı İlaç', 'ECZYT.IS': 'Eczacıbaşı Yatırım',
+    'DEVA.IS': 'Deva Holding',
+    'ANSGR.IS': 'Anadolu Sigorta', 'AKGRT.IS': 'Aksigorta',
+    'TCELL.IS': 'Turkcell', 'TTKOM.IS': 'Türk Telekom',
+    'SASA.IS': 'Sasa Polyester', 'CIMSA.IS': 'Çimsa', 'AKCNS.IS': 'Akçansa',
+    'BOLUC.IS': 'Bolu Çimento', 'ADANA.IS': 'Adana Çimento',
+    'UNYEC.IS': 'Ünye Çimento', 'KONYA.IS': 'Konya Çimento',
   };
-  return names[symbol] || symbol;
+  return names[symbol] || symbol.replace('.IS', '');
 }
 
 // Tüm veriler bir arada
