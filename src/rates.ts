@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// TCMB Döviz Kurları
+// TCMB Doviz Kurlari
 export async function getTCMBRates() {
   try {
     const response = await axios.get(
@@ -25,7 +25,7 @@ export async function getTCMBRates() {
       }
     };
   } catch (error) {
-    throw new Error('TCMB verisi alınamadı');
+    throw new Error('TCMB verisi alinamadi');
   }
 }
 
@@ -77,11 +77,11 @@ export async function getCryptoRates() {
       coins
     };
   } catch (error) {
-    throw new Error('Kripto verisi alınamadı');
+    throw new Error('Kripto verisi alinamadi');
   }
 }
 
-// Altın, Gümüş, Platin, Bakır fiyatları
+// Altin, Gumus, Platin, Bakir fiyatlari
 export async function getCommodityRates() {
   try {
     const apiKey = process.env.METALS_API_KEY;
@@ -122,11 +122,11 @@ export async function getCommodityRates() {
       copper_usd: metals.copper,
     };
   } catch (error) {
-    throw new Error('Emtia verisi alınamadı');
+    throw new Error('Emtia verisi alinamadi');
   }
 }
 
-// Petrol & Doğalgaz Fiyatları
+// Petrol & Dogalgaz Fiyatlari
 export async function getOilPrices() {
   try {
     const headers = {
@@ -164,11 +164,11 @@ export async function getOilPrices() {
       },
     };
   } catch (error) {
-    throw new Error('Enerji verisi alınamadı');
+    throw new Error('Enerji verisi alinamadi');
   }
 }
 
-// BIST 250 Hisse Senetleri
+// BIST Hisse Senetleri
 export async function getBISTRates() {
   try {
     const headers = {
@@ -176,107 +176,42 @@ export async function getBISTRates() {
     };
 
     const symbols = [
-      'XU100.IS', // BIST 100 endeksi
-      // Bankacılık
-      'GARAN.IS', 'AKBNK.IS', 'YKBNK.IS', 'HALKB.IS', 'VAKBN.IS',
-      'ISCTR.IS', 'TSKB.IS', 'ALBRK.IS', 'KUVEYT.IS', 'ODEABANK.IS',
-      'QNBFB.IS', 'SKBNK.IS', 'FIBABANKA.IS', 'BURCE.IS', 'ICBCT.IS',
-      // Holding
-      'KCHOL.IS', 'SAHOL.IS', 'DOHOL.IS', 'GUBRF.IS', 'ISFIN.IS',
-      'SMART.IS', 'MPARK.IS', 'OYAKC.IS', 'TKFEN.IS', 'GLYHO.IS',
-      // Havacılık & Ulaşım
-      'THYAO.IS', 'PGSUS.IS', 'CLEBI.IS', 'HAVA.IS', 'TAVHL.IS',
-      'UCAK.IS', 'DURDO.IS',
-      // Savunma & Teknoloji
-      'ASELS.IS', 'ROKET.IS', 'KAREL.IS', 'NETAS.IS', 'LOGO.IS',
-      'INDES.IS', 'ARENA.IS', 'LINK.IS', 'DGATE.IS', 'ESCOM.IS',
-      'FONET.IS', 'INTEM.IS', 'PKART.IS', 'ISBIR.IS', 'BIMAS.IS',
-      // Demir Çelik & Madencilik
-      'EREGL.IS', 'KRDMD.IS', 'IZMDC.IS', 'CEMTS.IS', 'DMSAS.IS',
-      'KARDEM.IS', 'METUR.IS', 'KOZAA.IS', 'KOZA.IS', 'IPEKE.IS',
-      'ZNGDK.IS', 'CELHA.IS',
-      // Enerji & Petrokimya
-      'TUPRS.IS', 'AYGAZ.IS', 'AKSEN.IS', 'ZOREN.IS', 'ODAS.IS',
-      'ENJSA.IS', 'EUPWR.IS', 'AKFEN.IS', 'ENKAI.IS', 'GWIND.IS',
-      'FENER.IS', 'MAGEN.IS', 'NUHCM.IS', 'AKENR.IS', 'BERA.IS',
-      // Cam & Seramik
-      'SISE.IS', 'TRKCM.IS', 'ANACM.IS', 'ANEL.IS', 'EGSER.IS',
-      // Otomotiv
-      'TOASO.IS', 'FROTO.IS', 'ARCLK.IS', 'OTKAR.IS', 'ASUZU.IS',
-      'TTRAK.IS', 'DOAS.IS', 'DOGUB.IS',
-      // Perakende & Gıda
-      'BIMAS.IS', 'MGROS.IS', 'SOKM.IS', 'CARFA.IS', 'BIZIM.IS',
-      'ULKER.IS', 'BANVT.IS', 'TATGD.IS', 'KENT.IS', 'PNAR.IS',
-      'AEFES.IS', 'CCOLA.IS', 'PETUN.IS', 'TUKAS.IS', 'SELGD.IS',
-      // Tekstil & Giyim
-      'BRYAT.IS', 'MAVI.IS', 'BOSSA.IS', 'YATAS.IS', 'DESA.IS',
-      'GEDZA.IS', 'ITTFH.IS', 'KORDS.IS', 'LUKSK.IS', 'IPMAN.IS',
-      // İnşaat & GYO
-      'EKGYO.IS', 'ISGYO.IS', 'TRGYO.IS', 'ALGYO.IS', 'OZNUR.IS',
-      'PEKGY.IS', 'HLGYO.IS', 'KGYO.IS', 'RYGYO.IS', 'VKGYO.IS',
-      'SNGYO.IS', 'MNGYO.IS', 'DGGYO.IS', 'NUGYO.IS', 'OZKGY.IS',
-      // Kimya & İlaç
-      'ECILC.IS', 'SELEC.IS', 'ECZYT.IS', 'BIOEN.IS', 'DEVA.IS',
-      'BFREN.IS', 'ALFAS.IS', 'TLMAN.IS', 'AVGYO.IS', 'ALKIM.IS',
-      // Sigortacılık
-      'ANSGR.IS', 'RAYSG.IS', 'GUSGF.IS', 'AKGRT.IS', 'TURSG.IS',
-      // Telekomünikasyon & Medya
-      'TCELL.IS', 'TTKOM.IS', 'EREGL.IS', 'NTTUR.IS', 'DENGE.IS',
-      'DOBUR.IS', 'RYSAS.IS', 'MEDTR.IS',
-      // Tarım & Orman
-      'AGHOL.IS', 'TBORG.IS', 'BAGFS.IS', 'KSTUR.IS', 'TEZOL.IS',
-      // Lojistik & Denizcilik
-      'RYSAS.IS', 'GSDHO.IS', 'SDTTR.IS', 'HUBVC.IS', 'GSDDE.IS',
-      'DITAS.IS', 'MRSHL.IS', 'UFUK.IS',
-      // Diğer Sanayi
-      'SASA.IS', 'KERVT.IS', 'GOODY.IS', 'MUTLU.IS', 'GEDIK.IS',
-      'PENGD.IS', 'ADEL.IS', 'FMIZP.IS', 'BNTAS.IS', 'TIRE.IS',
-      'CIMSA.IS', 'AKCNS.IS', 'BOLUC.IS', 'ADANA.IS', 'MRDIN.IS',
-      'UNYEC.IS', 'KONYA.IS', 'AFYON.IS', 'FENIS.IS', 'GOLTS.IS',
-      'KAPLM.IS', 'SERVE.IS', 'ONCSM.IS', 'ORGE.IS', 'MEGAP.IS',
-      'TUREX.IS', 'KATMR.IS', 'OTOKAR.IS', 'SILVR.IS', 'UFUK.IS',
+      'XU100.IS','GARAN.IS','AKBNK.IS','YKBNK.IS','HALKB.IS','VAKBN.IS',
+      'ISCTR.IS','TSKB.IS','ALBRK.IS','QNBFB.IS','SKBNK.IS','THYAO.IS',
+      'PGSUS.IS','TAVHL.IS','CLEBI.IS','ASELS.IS','KAREL.IS','NETAS.IS',
+      'LOGO.IS','INDES.IS','ARENA.IS','LINK.IS','EREGL.IS','KRDMD.IS',
+      'IZMDC.IS','KOZAA.IS','KOZA.IS','CELHA.IS','TUPRS.IS','AYGAZ.IS',
+      'AKSEN.IS','ZOREN.IS','ENKAI.IS','ENJSA.IS','AKFEN.IS','ODAS.IS',
+      'SISE.IS','TRKCM.IS','ANACM.IS','TOASO.IS','FROTO.IS','ARCLK.IS',
+      'OTKAR.IS','ASUZU.IS','TTRAK.IS','DOAS.IS','BIMAS.IS','MGROS.IS',
+      'SOKM.IS','ULKER.IS','BANVT.IS','TATGD.IS','AEFES.IS','CCOLA.IS',
+      'MAVI.IS','EKGYO.IS','ISGYO.IS','TRGYO.IS','ALGYO.IS','ECILC.IS',
+      'ECZYT.IS','DEVA.IS','ANSGR.IS','AKGRT.IS','TCELL.IS','TTKOM.IS',
+      'SASA.IS','CIMSA.IS','AKCNS.IS','BOLUC.IS','ADANA.IS','UNYEC.IS',
+      'KONYA.IS','KCHOL.IS','SAHOL.IS','DOHOL.IS','TKFEN.IS','IPEKE.IS',
+      'GUBRF.IS','BAGFS.IS','PNAR.IS','PETUN.IS','BRYAT.IS','KORDS.IS',
+      'BOSSA.IS','YATAS.IS','GOODY.IS','MUTLU.IS','ADEL.IS','TIRE.IS',
+      'MRDIN.IS','AFYON.IS','GOLTS.IS','ORGE.IS','TUREX.IS','SILVR.IS',
+      'RYGYO.IS','VKGYO.IS','SNGYO.IS','MNGYO.IS','NUGYO.IS','RAYSG.IS',
     ];
 
-    // Tekrar edenleri temizle
-    const uniqueSymbols = [...new Set(symbols)];
+    const symbolList = symbols.join('%2C');
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbolList}`;
 
-    // 10'arlı gruplar halinde gönder (rate limit için)
-    const chunkSize = 10;
-    const chunks = [];
-    for (let i = 0; i < uniqueSymbols.length; i += chunkSize) {
-      chunks.push(uniqueSymbols.slice(i, i + chunkSize));
-    }
+    const response = await axios.get(url, { headers });
+    const quotes = response.data.quoteResponse.result;
 
-    const allResponses: any[] = [];
-    for (const chunk of chunks) {
-      const requests = chunk.map(symbol =>
-        axios.get(
-          `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`,
-          { headers }
-        ).catch(() => null)
-      );
-      const results = await Promise.all(requests);
-      allResponses.push(...results.map((res, i) => ({ res, symbol: chunk[i] })));
-    }
-
-    const stocks = allResponses
-      .map(({ res, symbol }) => {
-        if (!res) return null;
-        const meta = res.data.chart.result?.[0]?.meta;
-        if (!meta) return null;
-        const prev = meta.chartPreviousClose || meta.regularMarketPrice;
-        return {
-          symbol: symbol.replace('.IS', ''),
-          name: getStockName(symbol),
-          price: parseFloat(meta.regularMarketPrice.toFixed(2)),
-          previous_close: parseFloat(prev.toFixed(2)),
-          change_percent: parseFloat(
-            (((meta.regularMarketPrice - prev) / prev) * 100).toFixed(2)
-          ),
-          currency: 'TRY',
-        };
-      })
-      .filter(Boolean);
+    const stocks = quotes.map((q: any) => {
+      const prev = q.regularMarketPreviousClose || q.regularMarketPrice;
+      return {
+        symbol: q.symbol.replace('.IS', ''),
+        name: getStockName(q.symbol),
+        price: parseFloat((q.regularMarketPrice || 0).toFixed(2)),
+        previous_close: parseFloat((prev || 0).toFixed(2)),
+        change_percent: parseFloat((q.regularMarketChangePercent || 0).toFixed(2)),
+        currency: 'TRY',
+      };
+    });
 
     const bist100 = stocks.find((s: any) => s.symbol === 'XU100');
     const hisseler = stocks.filter((s: any) => s.symbol !== 'XU100');
@@ -289,52 +224,119 @@ export async function getBISTRates() {
       stocks: hisseler,
     };
   } catch (error) {
-    throw new Error('BIST verisi alınamadı');
+    throw new Error('BIST verisi alinamadi');
   }
 }
 
 function getStockName(symbol: string): string {
   const names: Record<string, string> = {
     'XU100.IS': 'BIST 100',
-    'GARAN.IS': 'Garanti BBVA', 'AKBNK.IS': 'Akbank', 'YKBNK.IS': 'Yapı Kredi',
-    'HALKB.IS': 'Halkbank', 'VAKBN.IS': 'Vakıfbank', 'ISCTR.IS': 'İş Bankası',
-    'TSKB.IS': 'TSKB', 'ALBRK.IS': 'Albaraka Türk', 'QNBFB.IS': 'QNB Finansbank',
-    'SKBNK.IS': 'Şekerbank', 'FIBABANKA.IS': 'Fibabanka', 'ICBCT.IS': 'ICBC Turkey',
-    'KCHOL.IS': 'Koç Holding', 'SAHOL.IS': 'Sabancı Holding', 'DOHOL.IS': 'Doğan Holding',
-    'TKFEN.IS': 'Tekfen Holding', 'GLYHO.IS': 'Global Yatırım Holding',
-    'THYAO.IS': 'Türk Hava Yolları', 'PGSUS.IS': 'Pegasus', 'CLEBI.IS': 'Çelebi',
-    'TAVHL.IS': 'TAV Havalimanları', 'HAVA.IS': 'Türk Hava Servisi',
-    'ASELS.IS': 'Aselsan', 'ROKET.IS': 'Roketsan', 'KAREL.IS': 'Karel',
-    'NETAS.IS': 'Netaş', 'LOGO.IS': 'Logo Yazılım', 'INDES.IS': 'İndes',
-    'ARENA.IS': 'Arena Bilgisayar', 'LINK.IS': 'Link Bilgisayar',
-    'EREGL.IS': 'Ereğli Demir Çelik', 'KRDMD.IS': 'Kardemir',
-    'IZMDC.IS': 'İzmir Demir Çelik', 'KOZAA.IS': 'Koza Anadolu',
-    'KOZA.IS': 'Koza Altın', 'CELHA.IS': 'Çelik Halat',
-    'TUPRS.IS': 'Tüpraş', 'AYGAZ.IS': 'Aygaz', 'AKSEN.IS': 'Aksa Enerji',
-    'ZOREN.IS': 'Zorlu Enerji', 'ENKAI.IS': 'Enka İnşaat', 'ENJSA.IS': 'Enerjisa',
-    'AKFEN.IS': 'Akfen Holding', 'ODAS.IS': 'Odaş Elektrik',
-    'SISE.IS': 'Şişe Cam', 'TRKCM.IS': 'Trakya Cam', 'ANACM.IS': 'Anadolu Cam',
-    'TOASO.IS': 'Tofaş', 'FROTO.IS': 'Ford Otosan', 'ARCLK.IS': 'Arçelik',
-    'OTKAR.IS': 'Otokar', 'ASUZU.IS': 'Anadolu Isuzu', 'TTRAK.IS': 'Türk Traktör',
-    'DOAS.IS': 'Doğuş Otomotiv',
-    'BIMAS.IS': 'BİM Mağazalar', 'MGROS.IS': 'Migros', 'SOKM.IS': 'Şok Marketler',
-    'ULKER.IS': 'Ülker', 'BANVT.IS': 'Banvit', 'TATGD.IS': 'Tat Gıda',
-    'AEFES.IS': 'Anadolu Efes', 'CCOLA.IS': 'Coca-Cola İçecek',
-    'MAVI.IS': 'Mavi Giyim', 'BRYAT.IS': 'Borusan Yatırım',
-    'EKGYO.IS': 'Emlak Konut', 'ISGYO.IS': 'İş GYO', 'TRGYO.IS': 'Torunlar GYO',
+    'GARAN.IS': 'Garanti BBVA',
+    'AKBNK.IS': 'Akbank',
+    'YKBNK.IS': 'Yapi Kredi',
+    'HALKB.IS': 'Halkbank',
+    'VAKBN.IS': 'Vakifbank',
+    'ISCTR.IS': 'Is Bankasi',
+    'TSKB.IS': 'TSKB',
+    'ALBRK.IS': 'Albaraka Turk',
+    'QNBFB.IS': 'QNB Finansbank',
+    'SKBNK.IS': 'Sekerbank',
+    'THYAO.IS': 'Turk Hava Yollari',
+    'PGSUS.IS': 'Pegasus',
+    'TAVHL.IS': 'TAV Havalimanlari',
+    'CLEBI.IS': 'Celebi',
+    'ASELS.IS': 'Aselsan',
+    'KAREL.IS': 'Karel',
+    'NETAS.IS': 'Netas',
+    'LOGO.IS': 'Logo Yazilim',
+    'INDES.IS': 'Indes',
+    'ARENA.IS': 'Arena Bilgisayar',
+    'LINK.IS': 'Link Bilgisayar',
+    'EREGL.IS': 'Eregli Demir Celik',
+    'KRDMD.IS': 'Kardemir',
+    'IZMDC.IS': 'Izmir Demir Celik',
+    'KOZAA.IS': 'Koza Anadolu',
+    'KOZA.IS': 'Koza Altin',
+    'CELHA.IS': 'Celik Halat',
+    'TUPRS.IS': 'Tupras',
+    'AYGAZ.IS': 'Aygaz',
+    'AKSEN.IS': 'Aksa Enerji',
+    'ZOREN.IS': 'Zorlu Enerji',
+    'ENKAI.IS': 'Enka Insaat',
+    'ENJSA.IS': 'Enerjisa',
+    'AKFEN.IS': 'Akfen Holding',
+    'ODAS.IS': 'Odas Elektrik',
+    'SISE.IS': 'Sise Cam',
+    'TRKCM.IS': 'Trakya Cam',
+    'ANACM.IS': 'Anadolu Cam',
+    'TOASO.IS': 'Tofas',
+    'FROTO.IS': 'Ford Otosan',
+    'ARCLK.IS': 'Arcelik',
+    'OTKAR.IS': 'Otokar',
+    'ASUZU.IS': 'Anadolu Isuzu',
+    'TTRAK.IS': 'Turk Traktor',
+    'DOAS.IS': 'Dogus Otomotiv',
+    'BIMAS.IS': 'BIM Magazalar',
+    'MGROS.IS': 'Migros',
+    'SOKM.IS': 'Sok Marketler',
+    'ULKER.IS': 'Ulker',
+    'BANVT.IS': 'Banvit',
+    'TATGD.IS': 'Tat Gida',
+    'AEFES.IS': 'Anadolu Efes',
+    'CCOLA.IS': 'Coca-Cola Icecek',
+    'MAVI.IS': 'Mavi Giyim',
+    'EKGYO.IS': 'Emlak Konut',
+    'ISGYO.IS': 'Is GYO',
+    'TRGYO.IS': 'Torunlar GYO',
     'ALGYO.IS': 'Alarko GYO',
-    'ECILC.IS': 'Eczacıbaşı İlaç', 'ECZYT.IS': 'Eczacıbaşı Yatırım',
+    'ECILC.IS': 'Eczacibasi Ilac',
+    'ECZYT.IS': 'Eczacibasi Yatirim',
     'DEVA.IS': 'Deva Holding',
-    'ANSGR.IS': 'Anadolu Sigorta', 'AKGRT.IS': 'Aksigorta',
-    'TCELL.IS': 'Turkcell', 'TTKOM.IS': 'Türk Telekom',
-    'SASA.IS': 'Sasa Polyester', 'CIMSA.IS': 'Çimsa', 'AKCNS.IS': 'Akçansa',
-    'BOLUC.IS': 'Bolu Çimento', 'ADANA.IS': 'Adana Çimento',
-    'UNYEC.IS': 'Ünye Çimento', 'KONYA.IS': 'Konya Çimento',
+    'ANSGR.IS': 'Anadolu Sigorta',
+    'AKGRT.IS': 'Aksigorta',
+    'TCELL.IS': 'Turkcell',
+    'TTKOM.IS': 'Turk Telekom',
+    'SASA.IS': 'Sasa Polyester',
+    'CIMSA.IS': 'Cimsa',
+    'AKCNS.IS': 'Akcansa',
+    'BOLUC.IS': 'Bolu Cimento',
+    'ADANA.IS': 'Adana Cimento',
+    'UNYEC.IS': 'Unye Cimento',
+    'KONYA.IS': 'Konya Cimento',
+    'KCHOL.IS': 'Koc Holding',
+    'SAHOL.IS': 'Sabanci Holding',
+    'DOHOL.IS': 'Dogan Holding',
+    'TKFEN.IS': 'Tekfen Holding',
+    'IPEKE.IS': 'Ipek Dogal Enerji',
+    'GUBRF.IS': 'Gubre Fabrikalari',
+    'BAGFS.IS': 'Bagfas',
+    'PNAR.IS': 'Pinar Sut',
+    'PETUN.IS': 'Pinar Et',
+    'BRYAT.IS': 'Borusan Yatirim',
+    'KORDS.IS': 'Kordsa',
+    'BOSSA.IS': 'Bossa',
+    'YATAS.IS': 'Yatas',
+    'GOODY.IS': 'Goodyear',
+    'MUTLU.IS': 'Mutlu Aku',
+    'ADEL.IS': 'Adel Kalemcilik',
+    'TIRE.IS': 'Tire Kutsan',
+    'MRDIN.IS': 'Mardin Cimento',
+    'AFYON.IS': 'Afyon Cimento',
+    'GOLTS.IS': 'Goltas Cimento',
+    'ORGE.IS': 'Orge Enerji',
+    'TUREX.IS': 'Tureks',
+    'SILVR.IS': 'Silverline',
+    'RYGYO.IS': 'Reysas GYO',
+    'VKGYO.IS': 'Vakif GYO',
+    'SNGYO.IS': 'Sinpas GYO',
+    'MNGYO.IS': 'Marti GYO',
+    'NUGYO.IS': 'Nurol GYO',
+    'RAYSG.IS': 'Ray Sigorta',
   };
   return names[symbol] || symbol.replace('.IS', '');
 }
 
-// Tüm veriler bir arada
+// Tum veriler bir arada
 export async function getAllRates() {
   const [forex, crypto, commodities, oil, bist] = await Promise.allSettled([
     getTCMBRates(),
@@ -346,10 +348,10 @@ export async function getAllRates() {
 
   return {
     timestamp: new Date().toISOString(),
-    forex: forex.status === 'fulfilled' ? forex.value : { error: 'Döviz verisi alınamadı' },
-    crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alınamadı' },
-    commodities: commodities.status === 'fulfilled' ? commodities.value : { error: 'Emtia verisi alınamadı' },
-    oil: oil.status === 'fulfilled' ? oil.value : { error: 'Enerji verisi alınamadı' },
-    bist: bist.status === 'fulfilled' ? bist.value : { error: 'BIST verisi alınamadı' },
+    forex: forex.status === 'fulfilled' ? forex.value : { error: 'Doviz verisi alinamadi' },
+    crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alinamadi' },
+    commodities: commodities.status === 'fulfilled' ? commodities.value : { error: 'Emtia verisi alinamadi' },
+    oil: oil.status === 'fulfilled' ? oil.value : { error: 'Enerji verisi alinamadi' },
+    bist: bist.status === 'fulfilled' ? bist.value : { error: 'BIST verisi alinamadi' },
   };
 }
