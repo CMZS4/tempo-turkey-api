@@ -126,12 +126,47 @@ export async function getCommodityRates() {
   }
 }
 
+// Petrol Fiyatları (Yahoo Finance - API key gerekmez)
+export async function getOilPrices() {
+  try {
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    };
+
+    const [brentRes, wtiRes, tcmbData] = await Promise.all([
+      axios.get('https://query1.finance.yahoo.com/v8/finance/chart/BZ=F?interval=1d&range=1d', { headers }),
+      axios.get('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=1d', { headers }),
+      getTCMBRates(),
+    ]);
+
+    const usdRate = tcmbData.rates.USD_TRY || 0;
+    const brentUsd = brentRes.data.chart.result[0].meta.regularMarketPrice;
+    const wtiUsd = wtiRes.data.chart.result[0].meta.regularMarketPrice;
+
+    return {
+      source: 'Yahoo Finance + TCMB',
+      timestamp: new Date().toISOString(),
+      brent: {
+        usd: parseFloat(brentUsd.toFixed(2)),
+        try: parseFloat((brentUsd * usdRate).toFixed(2)),
+      },
+      wti: {
+        usd: parseFloat(wtiUsd.toFixed(2)),
+        try: parseFloat((wtiUsd * usdRate).toFixed(2)),
+      },
+    };
+  } catch (error) {
+    throw new Error('Petrol verisi alınamadı');
+  }
+}
+
 // Tüm veriler bir arada
 export async function getAllRates() {
-  const [forex, crypto, commodities] = await Promise.allSettled([
+  const [forex, crypto, commodities, oil] = await Promise.allSettled([
     getTCMBRates(),
     getCryptoRates(),
     getCommodityRates(),
+    getOilPrices(),
   ]);
 
   return {
@@ -139,5 +174,6 @@ export async function getAllRates() {
     forex: forex.status === 'fulfilled' ? forex.value : { error: 'Döviz verisi alınamadı' },
     crypto: crypto.status === 'fulfilled' ? crypto.value : { error: 'Kripto verisi alınamadı' },
     commodities: commodities.status === 'fulfilled' ? commodities.value : { error: 'Emtia verisi alınamadı' },
+    oil: oil.status === 'fulfilled' ? oil.value : { error: 'Petrol verisi alınamadı' },
   };
 }
