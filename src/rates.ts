@@ -1,6 +1,22 @@
 import axios from 'axios';
 
+// In-memory cache
+const cache: Record<string, { data: any; expires: number }> = {};
+
+function getCache(key: string) {
+  const entry = cache[key];
+  if (entry && Date.now() < entry.expires) return entry.data;
+  return null;
+}
+
+function setCache(key: string, data: any, ttlSeconds: number) {
+  cache[key] = { data, expires: Date.now() + ttlSeconds * 1000 };
+}
+
 export async function getTCMBRates() {
+  const cached = getCache('forex');
+  if (cached) return cached;
+
   try {
     const response = await axios.get('https://www.tcmb.gov.tr/kurlar/today.xml');
     const xml = response.data as string;
@@ -8,7 +24,7 @@ export async function getTCMBRates() {
     const eurMatch = xml.match(/CurrencyCode="EUR"[\s\S]*?<BanknoteSelling>(.*?)<\/BanknoteSelling>/);
     const gbpMatch = xml.match(/CurrencyCode="GBP"[\s\S]*?<BanknoteSelling>(.*?)<\/BanknoteSelling>/);
     const jpyMatch = xml.match(/CurrencyCode="JPY"[\s\S]*?<BanknoteSelling>(.*?)<\/BanknoteSelling>/);
-    return {
+    const result = {
       source: 'TCMB',
       timestamp: new Date().toISOString(),
       rates: {
@@ -18,12 +34,17 @@ export async function getTCMBRates() {
         JPY_TRY: jpyMatch ? parseFloat(jpyMatch[1].replace(',', '.')) : null,
       }
     };
+    setCache('forex', result, 60); // 1 dakika
+    return result;
   } catch (error) {
     throw new Error('TCMB verisi alinamadi');
   }
 }
 
 export async function getCryptoRates() {
+  const cached = getCache('crypto');
+  if (cached) return cached;
+
   try {
     const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
       params: { vs_currency: 'usd', order: 'market_cap_desc', per_page: 250, page: 1, sparkline: false }
@@ -41,18 +62,23 @@ export async function getCryptoRates() {
       change_24h: coin.price_change_percentage_24h,
       volume_24h: coin.total_volume,
     }));
-    return {
+    const result = {
       source: 'CoinGecko',
       timestamp: new Date().toISOString(),
       count: coins.length,
       coins
     };
+    setCache('crypto', result, 120); // 2 dakika
+    return result;
   } catch (error) {
     throw new Error('Kripto verisi alinamadi');
   }
 }
 
 export async function getCommodityRates() {
+  const cached = getCache('commodities');
+  if (cached) return cached;
+
   try {
     const apiKey = process.env.METALS_API_KEY;
     const response = await axios.get(`https://api.metals.dev/v1/latest?api_key=${apiKey}&currency=USD&unit=toz`);
@@ -61,7 +87,7 @@ export async function getCommodityRates() {
     const usdRate = usdTry.rates.USD_TRY || 0;
     const goldOzUsd = metals.gold;
     const goldGramTry = (goldOzUsd / 31.1035) * usdRate;
-    return {
+    const result = {
       source: 'Metals.dev + TCMB',
       timestamp: new Date().toISOString(),
       gold: {
@@ -86,12 +112,17 @@ export async function getCommodityRates() {
       platinum_usd: metals.platinum,
       copper_usd: metals.copper,
     };
+    setCache('commodities', result, 300); // 5 dakika
+    return result;
   } catch (error) {
     throw new Error('Emtia verisi alinamadi');
   }
 }
 
 export async function getOilPrices() {
+  const cached = getCache('oil');
+  if (cached) return cached;
+
   try {
     const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' };
     const tcmbData = await getTCMBRates();
@@ -104,7 +135,7 @@ export async function getOilPrices() {
     const brentUsd = brentRes.data.chart.result[0].meta.regularMarketPrice;
     const wtiUsd = wtiRes.data.chart.result[0].meta.regularMarketPrice;
     const natgasUsd = natgasRes.data.chart.result[0].meta.regularMarketPrice;
-    return {
+    const result = {
       source: 'Yahoo Finance + TCMB',
       timestamp: new Date().toISOString(),
       brent: {
@@ -121,12 +152,17 @@ export async function getOilPrices() {
         unit: 'MMBtu',
       },
     };
+    setCache('oil', result, 120); // 2 dakika
+    return result;
   } catch (error) {
     throw new Error('Enerji verisi alinamadi');
   }
 }
 
 export async function getBISTRates() {
+  const cached = getCache('bist');
+  if (cached) return cached;
+
   try {
     const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' };
     const symbols = [
@@ -163,13 +199,15 @@ export async function getBISTRates() {
       .filter(Boolean);
     const bist100 = stocks.find((s: any) => s.symbol === 'XU100');
     const hisseler = stocks.filter((s: any) => s.symbol !== 'XU100');
-    return {
+    const result = {
       source: 'Yahoo Finance',
       timestamp: new Date().toISOString(),
       bist100: bist100 || null,
       count: hisseler.length,
       stocks: hisseler,
     };
+    setCache('bist', result, 120); // 2 dakika
+    return result;
   } catch (error) {
     throw new Error('BIST verisi alinamadi');
   }
