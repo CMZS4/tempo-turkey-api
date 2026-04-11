@@ -120,7 +120,24 @@ app.get('/rates/all',
     }
   }
 );
-
+// MPP discovery endpoint
+app.get('/.well-known/mpp.json', (req, res) => {
+  res.json({
+    version: '1.0',
+    name: 'Tempo Turkey API',
+    description: 'Real-time Turkish financial data — forex, crypto, gold, oil, BIST100',
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0x9CCFF45b5c1E9B1073D2a72C766f1a8Fd97383e0',
+    endpoints: [
+      { path: '/rates/forex', amount: '0.001', description: 'USD/EUR/GBP/JPY vs TRY' },
+      { path: '/rates/crypto', amount: '0.002', description: 'Top 300 cryptocurrencies' },
+      { path: '/rates/commodities', amount: '0.001', description: 'Gold, silver, platinum, copper' },
+      { path: '/rates/oil', amount: '0.001', description: 'Brent, WTI, Natural Gas' },
+      { path: '/rates/bist', amount: '0.002', description: 'BIST100 and Turkish stocks' },
+      { path: '/rates/all', amount: '0.005', description: 'All data in one request' },
+    ]
+  });
+});
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../src/dashboard.html'));
 });
