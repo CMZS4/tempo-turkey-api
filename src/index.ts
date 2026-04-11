@@ -137,6 +137,31 @@ app.get('/.well-known/mpp.json', (req, res) => {
       { path: '/rates/all', amount: '0.005', description: 'All data in one request' },
     ]
   });
+});// Agent discovery
+app.get('/llms.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`# Tempo Turkey API
+
+Real-time Turkish financial data API with MPP payment gating.
+
+## Endpoints
+
+- GET /rates/forex — USD, EUR, GBP, JPY vs TRY (0.001 USDG)
+- GET /rates/crypto — Top 300 cryptocurrencies in USD (0.002 USDG)
+- GET /rates/commodities — Gold, silver, platinum, copper in TRY (0.001 USDG)
+- GET /rates/oil — Brent, WTI, Natural Gas in USD and TRY (0.001 USDG)
+- GET /rates/bist — BIST100 index and top Turkish stocks (0.002 USDG)
+- GET /rates/all — All data in one request (0.005 USDG)
+
+## Payment
+
+All endpoints require MPP payment in USDG on Tempo.
+Recipient: 0x9CCFF45b5c1E9B1073D2a72C766f1a8Fd97383e0
+
+## Base URL
+
+https://tempo-turkey-api-production.up.railway.app
+`);
 });
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../src/dashboard.html'));
