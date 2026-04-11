@@ -4,25 +4,27 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 const { Mppx, tempo } = require('mppx/express');
+const { privateKeyToAccount } = require('viem/accounts');
 import { getTCMBRates, getCryptoRates, getAllRates, getCommodityRates, getOilPrices, getBISTRates } from './rates';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 const RECIPIENT = process.env.RECIPIENT_ADDRESS || '0x9CCFF45b5c1E9B1073D2a72C766f1a8Fd97383e0';
-const CURRENCY = '0x20c0000000000000000000000000000000000000'; // PathUSD on Tempo
+const CURRENCY = '0x20c0000000000000000000000000000000000000';
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
 
 const mppx = Mppx.create({
   methods: [tempo({
     currency: CURRENCY,
     recipient: RECIPIENT,
+    account: account,
   })],
 });
 
 app.use(cors());
 app.use(express.json());
 
-// Ana sayfa
 app.get('/', (req, res) => {
   res.json({
     name: 'Tempo Turkey API',
@@ -47,10 +49,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// Doviz kurları - 0.001 USDG
 app.get('/rates/forex',
   mppx.charge({ amount: '0.001' }),
-  async (req, res) => {
+  async (req: any, res: any) => {
     try {
       const data = await getTCMBRates();
       res.json(data);
@@ -60,10 +61,9 @@ app.get('/rates/forex',
   }
 );
 
-// Kripto fiyatlari - 0.002 USDG
 app.get('/rates/crypto',
   mppx.charge({ amount: '0.002' }),
-  async (req, res) => {
+  async (req: any, res: any) => {
     try {
       const data = await getCryptoRates();
       res.json(data);
@@ -73,10 +73,9 @@ app.get('/rates/crypto',
   }
 );
 
-// Emtia fiyatlari - 0.001 USDG
 app.get('/rates/commodities',
   mppx.charge({ amount: '0.001' }),
-  async (req, res) => {
+  async (req: any, res: any) => {
     try {
       const data = await getCommodityRates();
       res.json(data);
@@ -86,10 +85,9 @@ app.get('/rates/commodities',
   }
 );
 
-// Petrol fiyatlari - 0.001 USDG
 app.get('/rates/oil',
   mppx.charge({ amount: '0.001' }),
-  async (req, res) => {
+  async (req: any, res: any) => {
     try {
       const data = await getOilPrices();
       res.json(data);
@@ -99,10 +97,9 @@ app.get('/rates/oil',
   }
 );
 
-// BIST hisseleri - 0.002 USDG
 app.get('/rates/bist',
   mppx.charge({ amount: '0.002' }),
-  async (req, res) => {
+  async (req: any, res: any) => {
     try {
       const data = await getBISTRates();
       res.json(data);
@@ -112,10 +109,9 @@ app.get('/rates/bist',
   }
 );
 
-// Hepsi bir arada - 0.005 USDG
 app.get('/rates/all',
   mppx.charge({ amount: '0.005' }),
-  async (req, res) => {
+  async (req: any, res: any) => {
     try {
       const data = await getAllRates();
       res.json(data);
@@ -125,12 +121,10 @@ app.get('/rates/all',
   }
 );
 
-// Dashboard - ucretsiz
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../src/dashboard.html'));
 });
 
-// Sunucuyu baslat
 app.listen(PORT, () => {
   console.log(`Tempo Turkey API calisiyor: http://localhost:${PORT}`);
   console.log(`Forex: http://localhost:${PORT}/rates/forex`);
