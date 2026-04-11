@@ -15,13 +15,13 @@ const CURRENCY = '0x20c0000000000000000000000000000000000000';
 const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY,
   methods: [tempo({
     currency: CURRENCY,
     recipient: RECIPIENT,
     account: account,
   })],
 });
-
 app.use(cors());
 app.use(express.json());
 
