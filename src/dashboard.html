@@ -379,11 +379,11 @@ async function loadAll() {
   document.getElementById('last-update').textContent = 'YUKLENIYOR...';
   try {
     const [fRes, cRes, mRes, oRes, bRes] = await Promise.all([
-      fetch(API + '/rates/forex'),
-      fetch(API + '/rates/crypto'),
-      fetch(API + '/rates/commodities'),
-      fetch(API + '/rates/oil'),
-      fetch(API + '/rates/bist'),
+      fetch(API + '/public/forex'),
+fetch(API + '/public/crypto'),
+fetch(API + '/public/commodities'),
+fetch(API + '/public/oil'),
+fetch(API + '/public/bist'),
     ]);
     const forexData = await fRes.json();
     const cryptoData = await cRes.json();

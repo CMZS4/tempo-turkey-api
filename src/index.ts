@@ -162,6 +162,50 @@ Recipient: 0x9CCFF45b5c1E9B1073D2a72C766f1a8Fd97383e0
 
 https://tempo-turkey-api-production.up.railway.app
 `);
+});// Dashboard icin ucretsiz public endpointler
+app.get('/public/forex', async (req, res) => {
+  try {
+    const data = await getTCMBRates();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Doviz verisi alinamadi' });
+  }
+});
+
+app.get('/public/crypto', async (req, res) => {
+  try {
+    const data = await getCryptoRates();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Kripto verisi alinamadi' });
+  }
+});
+
+app.get('/public/commodities', async (req, res) => {
+  try {
+    const data = await getCommodityRates();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Emtia verisi alinamadi' });
+  }
+});
+
+app.get('/public/oil', async (req, res) => {
+  try {
+    const data = await getOilPrices();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Petrol verisi alinamadi' });
+  }
+});
+
+app.get('/public/bist', async (req, res) => {
+  try {
+    const data = await getBISTRates();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'BIST verisi alinamadi' });
+  }
 });
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../src/dashboard.html'));
