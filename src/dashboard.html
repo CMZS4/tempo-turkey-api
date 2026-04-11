@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tempo Turkey API — Canlı Piyasalar</title>
+<title>Tempo Turkey API — Canli Piyasalar</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -17,6 +17,7 @@
   --blue: #2979ff;
   --gold: #ffc107;
   --red: #ff1744;
+  --orange: #ff6d00;
   --text: #dde8f0;
   --text2: #8a9bb0;
   --text3: #4a6070;
@@ -79,6 +80,19 @@ header {
 .metal-card { background:var(--card); border:1px solid var(--border); padding:18px 22px; display:flex; align-items:center; justify-content:space-between; }
 .metal-name { font-family:var(--mono); font-size:11px; color:var(--text3); letter-spacing:1px; }
 .metal-price { font-family:var(--mono); font-size:18px; font-weight:600; color:var(--gold); }
+.oil-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px; }
+.oil-card { background:var(--card); border:1px solid var(--border); padding:20px 22px; position:relative; overflow:hidden; transition:border-color .2s,transform .2s; }
+.oil-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),transparent); }
+.oil-card:hover { border-color:rgba(255,109,0,.3); transform:translateY(-2px); }
+.oil-name { font-family:var(--mono); font-size:10px; color:var(--orange); letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+.oil-usd { font-family:var(--mono); font-size:28px; font-weight:600; color:var(--text); line-height:1; }
+.oil-try { font-family:var(--mono); font-size:14px; color:var(--text3); margin-top:8px; }
+.oil-unit { font-family:var(--mono); font-size:10px; color:var(--text3); margin-top:6px; letter-spacing:1px; }
+.bist-header-card { background:var(--card); border:1px solid var(--accent); padding:24px 28px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; position:relative; overflow:hidden; }
+.bist-header-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),transparent); }
+.bist-index-name { font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:3px; margin-bottom:8px; }
+.bist-index-val { font-family:var(--mono); font-size:40px; font-weight:600; color:var(--text); line-height:1; }
+.bist-change { font-family:var(--mono); font-size:16px; font-weight:600; margin-top:8px; }
 .crypto-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
 .filter-group { display:flex; gap:6px; }
 .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text3); padding:6px 14px; font-family:var(--mono); font-size:10px; letter-spacing:1px; cursor:pointer; transition:all .2s; text-transform:uppercase; }
@@ -111,8 +125,8 @@ tr:hover td { background:rgba(255,255,255,.012); }
 ::-webkit-scrollbar { width:5px; height:5px; }
 ::-webkit-scrollbar-track { background:var(--bg); }
 ::-webkit-scrollbar-thumb { background:var(--border2); }
-@media(max-width:900px) { .forex-grid,.gold-grid { grid-template-columns:repeat(2,1fr); } .metal-grid { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:600px) { .forex-grid,.gold-grid,.metal-grid { grid-template-columns:1fr; } .forex-rate { font-size:22px; } }
+@media(max-width:900px) { .forex-grid,.gold-grid { grid-template-columns:repeat(2,1fr); } .metal-grid,.oil-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px) { .forex-grid,.gold-grid,.metal-grid,.oil-grid { grid-template-columns:1fr; } .forex-rate,.oil-usd { font-size:22px; } }
 </style>
 </head>
 <body>
@@ -123,65 +137,86 @@ tr:hover td { background:rgba(255,255,255,.012); }
       <div class="logo-text">TEMPO <span>TURKEY</span> API</div>
     </div>
     <div class="header-right">
-      <div class="update-info">GÜNCELLEME: <span id="last-update">—</span></div>
-      <button class="refresh-btn" onclick="loadAll()">↻ YENİLE</button>
+      <div class="update-info">GUNCELLEME: <span id="last-update">—</span></div>
+      <button class="refresh-btn" onclick="loadAll()">↻ YENILE</button>
     </div>
   </div>
 </header>
 
 <div class="wrap">
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('genel',this)">🌍 GENEL BAKIŞ</button>
-    <button class="tab" onclick="switchTab('doviz',this)">💱 DÖVİZ</button>
-    <button class="tab" onclick="switchTab('altin',this)">🥇 ALTIN & EMTİA</button>
-    <button class="tab" onclick="switchTab('kripto',this)">🪙 KRİPTO</button>
+    <button class="tab active" onclick="switchTab('genel',this)">GENEL BAKIS</button>
+    <button class="tab" onclick="switchTab('doviz',this)">DOVIZ</button>
+    <button class="tab" onclick="switchTab('altin',this)">ALTIN & EMTIA</button>
+    <button class="tab" onclick="switchTab('petrol',this)">PETROL & ENERJI</button>
+    <button class="tab" onclick="switchTab('bist',this)">BIST & HISSELER</button>
+    <button class="tab" onclick="switchTab('kripto',this)">KRIPTO</button>
   </div>
 
-  <!-- GENEL BAKIŞ -->
+  <!-- GENEL BAKIS -->
   <div class="section active" id="tab-genel">
-    <div class="sec-header"><span class="sec-title">Döviz Kurları</span><div class="sec-line"></div><span class="sec-badge">TCMB</span></div>
-    <div class="forex-grid" id="genel-forex"><div class="loading"><div class="spinner"></div><div class="loading-txt">YÜKLENİYOR...</div></div></div>
+    <div class="sec-header"><span class="sec-title">Doviz Kurlari</span><div class="sec-line"></div><span class="sec-badge">TCMB</span></div>
+    <div class="forex-grid" id="genel-forex"><div class="loading"><div class="spinner"></div><div class="loading-txt">YUKLENIYOR...</div></div></div>
 
-    <div class="sec-header"><span class="sec-title">Altın Fiyatları</span><div class="sec-line"></div><span class="sec-badge">METALS.DEV + TCMB</span></div>
+    <div class="sec-header"><span class="sec-title">Altin Fiyatlari</span><div class="sec-line"></div><span class="sec-badge">METALS.DEV + TCMB</span></div>
     <div class="gold-grid" id="genel-gold"><div class="loading"><div class="spinner"></div></div></div>
+
+    <div class="sec-header" style="margin-top:28px;"><span class="sec-title">Petrol & Dogalgaz</span><div class="sec-line"></div><span class="sec-badge">YAHOO FINANCE</span></div>
+    <div class="oil-grid" id="genel-oil"><div class="loading"><div class="spinner"></div></div></div>
 
     <div class="sec-header" style="margin-top:28px;"><span class="sec-title">Top 10 Kripto</span><div class="sec-line"></div><span class="sec-badge">COINGECKO</span></div>
     <div class="table-wrap">
-      <table><thead><tr><th>#</th><th>KOİN</th><th class="r">FİYAT</th><th class="r">24S</th><th class="r">PİYASA DEĞERİ</th></tr></thead>
+      <table><thead><tr><th>#</th><th>KOIN</th><th class="r">FIYAT</th><th class="r">24S</th><th class="r">PIYASA DEGERI</th></tr></thead>
       <tbody id="genel-crypto"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
     </div>
   </div>
 
-  <!-- DÖVİZ -->
+  <!-- DOVIZ -->
   <div class="section" id="tab-doviz">
-    <div class="sec-header"><span class="sec-title">Tüm Döviz Kurları</span><div class="sec-line"></div><span class="sec-badge">TCMB BANKNOT SATIŞ</span></div>
+    <div class="sec-header"><span class="sec-title">Tum Doviz Kurlari</span><div class="sec-line"></div><span class="sec-badge">TCMB BANKNOT SATIS</span></div>
     <div class="forex-grid" id="doviz-grid"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 
-  <!-- ALTIN & EMTİA -->
+  <!-- ALTIN & EMTIA -->
   <div class="section" id="tab-altin">
-    <div class="sec-header"><span class="sec-title">Altın Fiyatları (TRY)</span><div class="sec-line"></div><span class="sec-badge">METALS.DEV + TCMB</span></div>
+    <div class="sec-header"><span class="sec-title">Altin Fiyatlari (TRY)</span><div class="sec-line"></div><span class="sec-badge">METALS.DEV + TCMB</span></div>
     <div class="gold-grid" id="altin-grid"><div class="loading"><div class="spinner"></div></div></div>
-    <div class="sec-header" style="margin-top:28px;"><span class="sec-title">Diğer Metaller (USD/oz)</span><div class="sec-line"></div></div>
+    <div class="sec-header" style="margin-top:28px;"><span class="sec-title">Diger Metaller (USD/oz)</span><div class="sec-line"></div></div>
     <div class="metal-grid" id="metal-grid"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 
-  <!-- KRİPTO -->
+  <!-- PETROL & ENERJI -->
+  <div class="section" id="tab-petrol">
+    <div class="sec-header"><span class="sec-title">Ham Petrol & Dogalgaz</span><div class="sec-line"></div><span class="sec-badge">YAHOO FINANCE + TCMB</span></div>
+    <div class="oil-grid" id="petrol-grid"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- BIST & HISSELER -->
+  <div class="section" id="tab-bist">
+    <div class="sec-header"><span class="sec-title">BIST 100 & Turk Hisseleri</span><div class="sec-line"></div><span class="sec-badge">YAHOO FINANCE</span></div>
+    <div id="bist-header-wrap"><div class="loading"><div class="spinner"></div></div></div>
+    <div class="table-wrap" style="margin-top:16px;">
+      <table><thead><tr><th>SEMBOL</th><th>SIRKET</th><th class="r">FIYAT (TRY)</th><th class="r">ONCEKI KAPANIS</th><th class="r">DEGISIM</th></tr></thead>
+      <tbody id="bist-tbody"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- KRIPTO -->
   <div class="section" id="tab-kripto">
     <div class="crypto-toolbar">
       <div class="filter-group">
-        <button class="filter-btn active" onclick="filterCoins('all',this)">TÜMÜ</button>
-        <button class="filter-btn" onclick="filterCoins('up',this)">↑ YUKARI</button>
-        <button class="filter-btn" onclick="filterCoins('down',this)">↓ AŞAĞI</button>
+        <button class="filter-btn active" onclick="filterCoins('all',this)">TUMU</button>
+        <button class="filter-btn" onclick="filterCoins('up',this)">YUKARI</button>
+        <button class="filter-btn" onclick="filterCoins('down',this)">ASAGI</button>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <span id="coin-count" style="font-family:var(--mono);font-size:10px;color:var(--text3);">— KOİN</span>
-        <input class="search-box" type="text" placeholder="KOİN ARA..." oninput="searchCoins(this.value)">
+        <span id="coin-count" style="font-family:var(--mono);font-size:10px;color:var(--text3);">— KOIN</span>
+        <input class="search-box" type="text" placeholder="KOIN ARA..." oninput="searchCoins(this.value)">
       </div>
     </div>
     <div class="table-wrap">
-      <table><thead><tr><th>#</th><th>KOİN</th><th class="r">FİYAT (USD)</th><th class="r">24S DEĞİŞİM</th><th class="r">PİYASA DEĞERİ</th><th class="r">HACİM (24S)</th></tr></thead>
-      <tbody id="crypto-tbody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div><div class="loading-txt">YÜKLENİYOR...</div></div></td></tr></tbody></table>
+      <table><thead><tr><th>#</th><th>KOIN</th><th class="r">FIYAT (USD)</th><th class="r">24S DEGISIM</th><th class="r">PIYASA DEGERI</th><th class="r">HACIM (24S)</th></tr></thead>
+      <tbody id="crypto-tbody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div><div class="loading-txt">YUKLENIYOR...</div></div></td></tr></tbody></table>
     </div>
   </div>
 </div>
@@ -219,54 +254,88 @@ function fmtTRY(n) {
 
 function fmtGold(n) {
   if (!n) return '—';
-  return '₺' + n.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return 'TL' + n.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
 function renderForex(r, id) {
   document.getElementById(id).innerHTML = `
-    <div class="forex-card"><div class="forex-pair">USD / TRY</div><div class="forex-rate">${fmtTRY(r.USD_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIŞ</div></div>
-    <div class="forex-card"><div class="forex-pair">EUR / TRY</div><div class="forex-rate">${fmtTRY(r.EUR_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIŞ</div></div>
-    <div class="forex-card"><div class="forex-pair">GBP / TRY</div><div class="forex-rate">${fmtTRY(r.GBP_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIŞ</div></div>
-    <div class="forex-card"><div class="forex-pair">JPY / TRY</div><div class="forex-rate">${fmtTRY(r.JPY_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIŞ</div></div>`;
+    <div class="forex-card"><div class="forex-pair">USD / TRY</div><div class="forex-rate">${fmtTRY(r.USD_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIS</div></div>
+    <div class="forex-card"><div class="forex-pair">EUR / TRY</div><div class="forex-rate">${fmtTRY(r.EUR_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIS</div></div>
+    <div class="forex-card"><div class="forex-pair">GBP / TRY</div><div class="forex-rate">${fmtTRY(r.GBP_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIS</div></div>
+    <div class="forex-card"><div class="forex-pair">JPY / TRY</div><div class="forex-rate">${fmtTRY(r.JPY_TRY)}</div><div class="forex-sub">TCMB BANKNOT SATIS</div></div>`;
 }
 
 function renderGold(d, id) {
   const g = d.gold;
   document.getElementById(id).innerHTML = `
-    <div class="gold-card"><div class="gold-type">⚖️ GRAM ALTIN</div><div class="gold-prices">
-      <div class="gold-row"><span class="gold-label">ALIŞ</span><span class="gold-val alis">${fmtGold(g.gram.alis)}</span></div>
+    <div class="gold-card"><div class="gold-type">GRAM ALTIN</div><div class="gold-prices">
+      <div class="gold-row"><span class="gold-label">ALIS</span><span class="gold-val alis">${fmtGold(g.gram.alis)}</span></div>
       <div class="gold-divider"></div>
-      <div class="gold-row"><span class="gold-label">SATIŞ</span><span class="gold-val satis">${fmtGold(g.gram.satis)}</span></div>
+      <div class="gold-row"><span class="gold-label">SATIS</span><span class="gold-val satis">${fmtGold(g.gram.satis)}</span></div>
     </div></div>
-    <div class="gold-card"><div class="gold-type">🪙 ÇEYREK ALTIN</div><div class="gold-prices">
-      <div class="gold-row"><span class="gold-label">ALIŞ</span><span class="gold-val alis">${fmtGold(g.ceyrek.alis)}</span></div>
+    <div class="gold-card"><div class="gold-type">CEYREK ALTIN</div><div class="gold-prices">
+      <div class="gold-row"><span class="gold-label">ALIS</span><span class="gold-val alis">${fmtGold(g.ceyrek.alis)}</span></div>
       <div class="gold-divider"></div>
-      <div class="gold-row"><span class="gold-label">SATIŞ</span><span class="gold-val satis">${fmtGold(g.ceyrek.satis)}</span></div>
+      <div class="gold-row"><span class="gold-label">SATIS</span><span class="gold-val satis">${fmtGold(g.ceyrek.satis)}</span></div>
     </div></div>
-    <div class="gold-card"><div class="gold-type">🥈 YARIM ALTIN</div><div class="gold-prices">
-      <div class="gold-row"><span class="gold-label">ALIŞ</span><span class="gold-val alis">${fmtGold(g.yarim.alis)}</span></div>
+    <div class="gold-card"><div class="gold-type">YARIM ALTIN</div><div class="gold-prices">
+      <div class="gold-row"><span class="gold-label">ALIS</span><span class="gold-val alis">${fmtGold(g.yarim.alis)}</span></div>
       <div class="gold-divider"></div>
-      <div class="gold-row"><span class="gold-label">SATIŞ</span><span class="gold-val satis">${fmtGold(g.yarim.satis)}</span></div>
+      <div class="gold-row"><span class="gold-label">SATIS</span><span class="gold-val satis">${fmtGold(g.yarim.satis)}</span></div>
     </div></div>
-    <div class="gold-card"><div class="gold-type">🏅 TAM ALTIN</div><div class="gold-prices">
-      <div class="gold-row"><span class="gold-label">ALIŞ</span><span class="gold-val alis">${fmtGold(g.tam.alis)}</span></div>
+    <div class="gold-card"><div class="gold-type">TAM ALTIN</div><div class="gold-prices">
+      <div class="gold-row"><span class="gold-label">ALIS</span><span class="gold-val alis">${fmtGold(g.tam.alis)}</span></div>
       <div class="gold-divider"></div>
-      <div class="gold-row"><span class="gold-label">SATIŞ</span><span class="gold-val satis">${fmtGold(g.tam.satis)}</span></div>
+      <div class="gold-row"><span class="gold-label">SATIS</span><span class="gold-val satis">${fmtGold(g.tam.satis)}</span></div>
     </div></div>`;
 }
 
 function renderMetals(d) {
   document.getElementById('metal-grid').innerHTML = `
-    <div class="metal-card"><span class="metal-name">🥈 GÜMÜŞ (oz)</span><span class="metal-price">$${d.silver_usd?.toFixed(2)||'—'}</span></div>
-    <div class="metal-card"><span class="metal-name">💎 PLATİN (oz)</span><span class="metal-price">$${d.platinum_usd?.toFixed(2)||'—'}</span></div>
-    <div class="metal-card"><span class="metal-name">🔶 BAKIR (oz)</span><span class="metal-price">$${d.copper_usd?.toFixed(4)||'—'}</span></div>`;
+    <div class="metal-card"><span class="metal-name">GUMUS (oz)</span><span class="metal-price">$${d.silver_usd?.toFixed(2)||'—'}</span></div>
+    <div class="metal-card"><span class="metal-name">PLATIN (oz)</span><span class="metal-price">$${d.platinum_usd?.toFixed(2)||'—'}</span></div>
+    <div class="metal-card"><span class="metal-name">BAKIR (oz)</span><span class="metal-price">$${d.copper_usd?.toFixed(4)||'—'}</span></div>`;
+}
+
+function renderOil(d, id) {
+  document.getElementById(id).innerHTML = `
+    <div class="oil-card"><div class="oil-name">BRENT HAM PETROL</div><div class="oil-usd">$${d.brent.usd}</div><div class="oil-try">TL ${d.brent.try.toLocaleString('tr-TR')}</div><div class="oil-unit">USD / VARIL</div></div>
+    <div class="oil-card"><div class="oil-name">WTI HAM PETROL</div><div class="oil-usd">$${d.wti.usd}</div><div class="oil-try">TL ${d.wti.try.toLocaleString('tr-TR')}</div><div class="oil-unit">USD / VARIL</div></div>
+    <div class="oil-card"><div class="oil-name">DOGALGAZ</div><div class="oil-usd">$${d.natural_gas.usd}</div><div class="oil-try">TL ${d.natural_gas.try.toLocaleString('tr-TR')}</div><div class="oil-unit">USD / MMBTU</div></div>`;
+}
+
+function renderBIST(d) {
+  const b = d.bist100;
+  const cls = b && b.change_percent >= 0 ? 'up' : 'down';
+  const sign = b && b.change_percent >= 0 ? '+' : '';
+  document.getElementById('bist-header-wrap').innerHTML = b ? `
+    <div class="bist-header-card">
+      <div>
+        <div class="bist-index-name">BIST 100 ENDEKSI</div>
+        <div class="bist-index-val">${b.price.toLocaleString('tr-TR')}</div>
+        <div class="bist-change ${cls}">${sign}${b.change_percent}%</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">ONCEKI KAPANIS: ${b.previous_close.toLocaleString('tr-TR')}</div>
+    </div>` : '';
+
+  document.getElementById('bist-tbody').innerHTML = d.stocks.map(s => {
+    const cls = s.change_percent >= 0 ? 'up' : 'down';
+    const sign = s.change_percent >= 0 ? '+' : '';
+    return `<tr>
+      <td><span class="coin-sym">${s.symbol}</span></td>
+      <td><span class="coin-name">${s.name}</span></td>
+      <td class="td-r price">${s.price.toLocaleString('tr-TR')}</td>
+      <td class="td-r muted">${s.previous_close.toLocaleString('tr-TR')}</td>
+      <td class="td-r ${cls}">${sign}${s.change_percent}%</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderTable(coins, tbodyId, limit) {
   const data = limit ? coins.slice(0,limit) : coins;
   const cols = limit ? 5 : 6;
   if (!data.length) {
-    document.getElementById(tbodyId).innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:11px;">SONUÇ BULUNAMADI</td></tr>`;
+    document.getElementById(tbodyId).innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:11px;">SONUC BULUNAMADI</td></tr>`;
     return;
   }
   document.getElementById(tbodyId).innerHTML = data.map((c,i) => {
@@ -307,16 +376,20 @@ function searchCoins(q) {
 }
 
 async function loadAll() {
-  document.getElementById('last-update').textContent = 'YÜKLENİYOR...';
+  document.getElementById('last-update').textContent = 'YUKLENIYOR...';
   try {
-    const [fRes, cRes, mRes] = await Promise.all([
+    const [fRes, cRes, mRes, oRes, bRes] = await Promise.all([
       fetch(API + '/rates/forex'),
       fetch(API + '/rates/crypto'),
       fetch(API + '/rates/commodities'),
+      fetch(API + '/rates/oil'),
+      fetch(API + '/rates/bist'),
     ]);
     const forexData = await fRes.json();
     const cryptoData = await cRes.json();
     const goldData = await mRes.json();
+    const oilData = await oRes.json();
+    const bistData = await bRes.json();
     allCoins = cryptoData.coins || [];
 
     renderForex(forexData.rates, 'genel-forex');
@@ -324,8 +397,11 @@ async function loadAll() {
     renderGold(goldData, 'genel-gold');
     renderGold(goldData, 'altin-grid');
     renderMetals(goldData);
+    renderOil(oilData, 'genel-oil');
+    renderOil(oilData, 'petrol-grid');
+    renderBIST(bistData);
     renderTable(allCoins, 'genel-crypto', 10);
-    document.getElementById('coin-count').textContent = `TOP ${allCoins.length} KOİN`;
+    document.getElementById('coin-count').textContent = `TOP ${allCoins.length} KOIN`;
     applyFilter();
     document.getElementById('last-update').textContent = new Date().toLocaleTimeString('tr-TR');
   } catch(e) {
